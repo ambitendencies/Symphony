@@ -233,7 +233,7 @@ export class StationPlayer {
         existing.fade.gain.setTargetAtTime(existing.slotLevel, at, 1);
         continue;
       }
-      if (existing) this.drop(slot.voice);
+      if (existing) this.drop(slot.voice, at, true);
       this.enter(slot, at, fadeTime);
     }
   }
@@ -263,24 +263,32 @@ export class StationPlayer {
     this.live.set(def.id, { def, inst, fade, mix, slotLevel: level, role: slot.role, leavingAt: null });
   }
 
-  private drop(id: string): void {
+  private drop(id: string, at: number, disconnect: boolean): void {
     const l = this.live.get(id);
     if (!l) return;
     try {
-      l.inst.dispose();
+      l.inst.dispose(at);
     } catch (e) {
       console.error(e);
     }
-    l.mix.disconnect();
+    if (disconnect) l.mix.disconnect();
     this.live.delete(id);
   }
 
-  private reap(now: number): void {
-    for (const [id, l] of this.live) if (l.leavingAt !== null && l.leavingAt + 0.5 < now) this.drop(id);
+  /**
+   * Free voices whose fade-out has finished. `from` runs ahead of the real
+   * clock by the look-ahead (up to 2.5 s in background tabs), so wait a margin.
+   * Offline, the whole schedule is built before rendering starts, so nodes
+   * must stay connected: the voice disposes itself at its own end time.
+   */
+  private reap(from: number): void {
+    const offline = 'startRendering' in this.ctx;
+    for (const [id, l] of this.live)
+      if (l.leavingAt !== null && l.leavingAt + 3 < from) this.drop(id, l.leavingAt, !offline);
   }
 
-  dispose(): void {
-    for (const id of [...this.live.keys()]) this.drop(id);
+  dispose(at = this.ctx.currentTime): void {
+    for (const id of [...this.live.keys()]) this.drop(id, at, true);
     this.fader.disconnect();
   }
 }

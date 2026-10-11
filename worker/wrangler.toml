@@ -1,0 +1,20 @@
+# Cosmic Radio live-data Worker: polls NOAA SWPC every 2 minutes and serves
+# solar-wind.json (same envelope as app/public/data/solar-wind.json).
+name = "cosmic-radio-data"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+
+[triggers]
+crons = ["*/2 * * * *"]
+
+# Storage: R2 (preferred). Create with `wrangler r2 bucket create cosmic-radio-data`.
+[[r2_buckets]]
+binding = "DATA"
+bucket_name = "cosmic-radio-data"
+
+# Optional KV mirror instead of / as well as R2:
+# [[kv_namespaces]]
+# binding = "KV"
+# id = "<namespace id from `wrangler kv namespace create cosmic-radio`>"
+
+# Point the app at the Worker with VITE_LIVE_BASE=https://cosmic-radio-data.<account>.workers.dev/

@@ -206,8 +206,8 @@ class SolarWindVoice implements VoiceInstance {
     };
   }
 
-  dispose(): void {
-    const t = this.vc.ctx.currentTime;
+  dispose(at: number): void {
+    const t = Math.max(at, this.vc.ctx.currentTime);
     this.teardown(t);
     this.breath.stop(t + 3);
     setTimeout(() => this.output.disconnect(), 3500);

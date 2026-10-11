@@ -1,4 +1,26 @@
-# Symphony
+# Cosmic Radio (and Symphony)
+
+**Cosmic Radio** (`app/`) is a browser-based cosmic receiver: real space-science data turned into calm, layered, in-tune music, organized as radio stations you tune between. See `BUILD_PLAN.md` for the plan against the PRD.
+
+```bash
+cd app && npm install
+npm run dev            # http://localhost:5173
+npm test               # unit tests (vitest)
+npm run check          # type-check (svelte-check)
+npm run e2e            # headless Chromium: audio-safety renders of every station × mood + page smoke test
+npm run build          # static site in app/dist → Cloudflare Pages
+```
+
+- **Voices:** Solar Wind (live-capable, sonification), Pulsar Clocks (sonification), Singing Stars (audification of asteroseismic mode frequencies), Black Hole Chirps (audification of a modelled GW waveform).
+- **Stations:** Solar Drift, Neutron Focus, Gravity Hymn, Full Cosmos (`app/src/lib/stations/`).
+- **Data:** `pipeline/` regenerates the archival files in `app/public/data/` from ATNF, GWOSC and asteroseismology sources (weekly GitHub Action); `worker/` is a Cloudflare Worker that polls NOAA SWPC every 2 minutes. Set `VITE_LIVE_BASE` to the worker URL to enable live solar wind.
+- **Honest status:** the dev sandbox could not reach NOAA, GWOSC, MAST or ATNF, so the live path is tested only against fixtures, and the archival values were entered from published papers and still need to be checked by an online pipeline run. The solar-wind archive is a modelled storm, not a recorded one.
+
+The original **Symphony** Python renderer (below) is kept as reference physics and as the basis of the data pipeline.
+
+---
+
+# Symphony (Python renderer)
 
 **Hear space.** Space is nearly silent to human ears (there is no air to carry sound), but it is full of oscillations: planets circling stars, pulsars spinning, black holes merging, plasma waves rippling past spacecraft. Almost all of them lie far outside 20 Hz - 20 kHz. Symphony takes real physical numbers, shifts them into the audible range with transparent, documented mappings, and mixes them into a multi-movement "symphony".
 

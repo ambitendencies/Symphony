@@ -27,7 +27,14 @@ const skipAudio = args.includes('--skip-audio');
 const screens = opt('screens', null);
 const PORT = 5199;
 
-const server = spawn('npx', ['vite', '--port', String(PORT), '--strictPort'], { stdio: 'pipe' });
+// detached: own process group, so killing it also stops vite (not just npx)
+const server = spawn('npx', ['vite', '--port', String(PORT), '--strictPort'], { stdio: 'pipe', detached: true });
+const stopServer = () => {
+  try {
+    process.kill(-server.pid, 'SIGTERM');
+  } catch {}
+};
+process.on('exit', stopServer);
 await new Promise((resolve, reject) => {
   const t = setTimeout(() => reject(new Error('vite did not start')), 30000);
   server.stdout.on('data', (d) => String(d).includes('Local') && (clearTimeout(t), resolve()));
@@ -87,7 +94,7 @@ try {
   }
 } finally {
   await browser.close();
-  server.kill();
+  stopServer();
 }
 console.log(failed ? 'E2E FAILED' : 'E2E PASSED');
 process.exit(failed ? 1 : 0);

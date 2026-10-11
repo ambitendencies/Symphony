@@ -145,8 +145,12 @@ export interface VoiceInstance {
    */
   schedule(from: number, to: number): void;
   readout(): Readout;
-  /** Disconnect and free nodes. Called after the engine has faded the voice out. */
-  dispose(): void;
+  /**
+   * Stop sounding from audio time `at` and free nodes. Called once the engine
+   * has faded the voice out. Use `at`, not ctx.currentTime: in offline renders
+   * currentTime is 0 while the whole schedule is being built.
+   */
+  dispose(at: number): void;
 }
 
 export interface VoiceDefinition {
