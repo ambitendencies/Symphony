@@ -30,14 +30,18 @@ def cmd_info(args) -> int:
 
 def cmd_render(args) -> int:
     sr = args.rate
+    live_opts = {}
+    if args.live:
+        from .live import fetch_solar_wind
+        live_opts = {"data": fetch_solar_wind()}
     if args.source:
         if args.source not in REGISTRY:
             print(f"unknown source {args.source!r}", file=sys.stderr)
             return 2
-        sig = solo(args.source, args.duration, sr)
+        sig = solo(args.source, args.duration, sr, **(live_opts if args.source == "solar_wind" else {}))
         out = args.out or f"{args.source}.wav"
     else:
-        sym = default_symphony(args.scale)
+        sym = default_symphony(args.scale, solar_wind=live_opts)
         print(f"Rendering {sym.title}: {len(sym.movements)} movements, {sym.duration:.0f}s")
         sig = sym.render(sr, progress=lambda i, m: print(f"  {m.title}"))
         out = args.out or "symphony.wav"
@@ -59,6 +63,8 @@ def main(argv: list[str] | None = None) -> int:
     pr.add_argument("--scale", type=float, default=1.0, help="stretch symphony movements")
     pr.add_argument("--rate", type=int, default=SAMPLE_RATE)
     pr.add_argument("--out", "-o")
+    pr.add_argument("--live", action="store_true",
+                    help="drive solar_wind with real-time NOAA SWPC data (falls back offline)")
     pr.set_defaults(fn=cmd_render)
     args = p.parse_args(argv)
     return args.fn(args)
