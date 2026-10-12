@@ -50,7 +50,9 @@
   let el: HTMLDivElement;
   let pos = $state(untrack(() => index));
   let dragging = $state(false);
-  let interacting = false;
+  // $state, not a plain variable: the preview effect below must re-run when interaction ends,
+  // otherwise the "Tuning" label and static stay on after the station has locked.
+  let interacting = $state(false);
   let commitTimer: ReturnType<typeof setTimeout> | undefined;
   let drag: { startAngle: number; startPos: number; sx: number; sy: number; moved: boolean } | null = null;
 

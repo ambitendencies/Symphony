@@ -48,12 +48,15 @@
 <div class="grain" aria-hidden="true"></div>
 
 <style>
-  /* Sized to the *large* viewport so it also fills the area behind iOS Safari's
-     toolbars, and fades to exactly --bg at every edge so nothing shows a seam. */
+  /* Some mobile browsers (Chrome and in-app browsers on iOS) end the page a few
+     points above the home indicator and paint the plain page background below it.
+     So every layer fades out to exactly --bg over the last 72px: whether or not the
+     page reaches the screen edge, there is no visible seam. */
   .sky {
-    position: fixed; top: 0; left: 0; right: 0; height: 100lvh; min-height: 100%;
+    position: fixed; inset: 0;
     z-index: var(--z-sky); overflow: hidden;
     background: radial-gradient(90% 60% at 65% 55%, var(--bg-2) 0%, var(--bg) 100%);
+    -webkit-mask-image: var(--edge-fade); mask-image: var(--edge-fade);
   }
   /* One off-centre wash of the station's hue, low and to the right, like light pollution on a horizon. */
   .glow {

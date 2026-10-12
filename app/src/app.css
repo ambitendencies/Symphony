@@ -58,6 +58,9 @@
   --t-fast: 220ms;
 
   /* Z-index scale */
+  /* Fades a fixed layer to transparent (revealing the plain page background) at the bottom edge. */
+  --edge-fade: linear-gradient(to bottom, #000 calc(100% - 72px - var(--safe-b)), transparent 100%);
+
   --z-sky: 0;
   --z-grain: 1;
   --z-app: 10;
@@ -119,6 +122,7 @@ a:hover { text-decoration-thickness: 2px; }
 .grain {
   position: fixed; inset: 0; z-index: var(--z-grain); pointer-events: none;
   opacity: 0.07; mix-blend-mode: overlay;
+  -webkit-mask-image: var(--edge-fade); mask-image: var(--edge-fade);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 

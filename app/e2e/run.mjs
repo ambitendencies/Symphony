@@ -93,6 +93,14 @@ try {
     const audio = await page.evaluate(() => window.__engine?.audioContext?.state ?? 'no engine handle');
     if (audio !== 'running') fail(`${name}: audio context is ${audio} after tapping Begin`);
     if (screens) await page.screenshot({ path: `${screens}/receiver-${name}.png` });
+    // Tuning must finish: label returns to "Now tuned", and a station plays at least four voices.
+    await page.locator('[role=slider]').focus();
+    await page.keyboard.press('End');
+    await page.waitForTimeout(7500);
+    const kicker = (await page.locator('.kicker').first().innerText()).replace(/\s+/g, ' ');
+    if (!/Now tuned/i.test(kicker)) fail(`${name}: stuck on "${kicker}" after tuning`);
+    const nVoices = await page.evaluate(() => window.__engine?.state?.voices?.length ?? 0);
+    if (nVoices < 4) fail(`${name}: only ${nVoices} voices playing on Full Cosmos`);
     if (errors.length) fail(`${name}: console errors:\n  ${errors.join('\n  ')}`);
     await page.close();
   }
