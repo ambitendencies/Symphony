@@ -42,7 +42,8 @@
   const station = $derived(engine.station(es.stationId));
   const stationIndex = $derived(Math.max(0, stations.findIndex((s) => s.id === es.stationId)));
   const shownStation = $derived(preview !== null ? stations[preview] : station);
-  const hue = $derived(shownStation?.hue ?? 220);
+  const shownIndex = $derived(preview ?? stationIndex);
+  const hue = $derived(shownStation?.hue ?? 36);
   const techniques = $derived([...new Set(es.voices.map((v) => v.technique))].map((t) => TECHNIQUE_LABELS[t]));
   const tuning = $derived(es.status === 'tuning' || preview !== null);
   const hidden = $derived(phase === 'receiver' && idle && panel === null);
@@ -197,6 +198,7 @@
 
 <svelte:window {onkeydown} />
 
+<a class="skip" href="#controls">Skip to controls</a>
 <Starfield />
 
 {#if phase === 'arrival'}
@@ -211,11 +213,11 @@
         </span>
       {/if}
       <button class="icon" onclick={() => toggle('about')} aria-label="About and credits" aria-expanded={panel === 'about'}>
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M12 11v5.5M12 7.8v.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M12 11v5.5M12 7.8v.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
       </button>
     </header>
 
-    <div class="stage reveal">
+    <main class="stage reveal" id="main">
       <Dial
         {stations}
         index={stationIndex}
@@ -227,21 +229,25 @@
         bind:preview
         onTune={tune}
       />
-      <div class="info">
+      <section class="info" aria-label="Now playing">
+        <p class="label kicker">
+          {tuning ? 'Tuning' : 'Now tuned'}<span class="num count">{String(shownIndex + 1).padStart(2, '0')} / {String(stations.length).padStart(2, '0')}</span>
+        </p>
         <h1 class="name" lang="en">{shownStation?.name}</h1>
         <p class="tagline">{shownStation?.tagline}</p>
-        <p class="chips">
-          <span>{MOODS[es.mood].label}</span>
-          {#each techniques as t (t)}<span>{t}</span>{/each}
-          {#if es.sleepEndsAt}<span class="sleep">Sleep · {formatRemaining(es.sleepEndsAt - now)}</span>{/if}
-        </p>
-      </div>
+        <dl class="facts">
+          <div><dt class="label">Mood</dt><dd>{MOODS[es.mood].label}</dd></div>
+          <div><dt class="label">Made by</dt><dd>{techniques.length ? techniques.join(' + ') : '—'}</dd></div>
+          <div><dt class="label">Voices</dt><dd class="num">{es.voices.length || '—'}</dd></div>
+          {#if es.sleepEndsAt}<div class="sleep"><dt class="label">Sleep in</dt><dd class="num">{formatRemaining(es.sleepEndsAt - now)}</dd></div>{/if}
+        </dl>
+      </section>
       <p class="caption" class:on={captionOn} aria-live="polite" aria-atomic="true">{captionText}</p>
-    </div>
+    </main>
 
-    <nav class="dock chrome" aria-label="Receiver controls">
+    <nav class="dock chrome" id="controls" aria-label="Receiver controls">
       <button class:active={panel === 'hearing'} aria-expanded={panel === 'hearing'} onclick={() => toggle('hearing')}>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c2.5-5 6-5 9 0s6.500 5 9 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c2.5-5 6-5 9 0s6.5 5 9 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
         <span>What am I hearing?</span>
       </button>
       <button class:active={panel === 'orchestra'} aria-expanded={panel === 'orchestra'} onclick={() => toggle('orchestra')}>
@@ -249,11 +255,11 @@
         <span>Orchestra</span>
       </button>
       <button class:active={panel === 'mood'} aria-expanded={panel === 'mood'} onclick={() => toggle('mood')}>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.500A8 8 0 0 1 9.500 4 8 8 0 1 0 20 14.500z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /></svg>
         <span>Mood &amp; timer</span>
       </button>
       <button onclick={share}>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4m0 0L8 8m4-4l4 4M5 13v6h14v-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4m0 0L8 8m4-4l4 4M5 13v6h14v-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
         <span>Share</span>
       </button>
     </nav>
@@ -274,57 +280,81 @@
 
 <style>
   .app {
-    position: fixed; inset: 0; z-index: 5;
-    display: grid; grid-template-rows: auto 1fr auto;
+    position: fixed; inset: 0; z-index: var(--z-app);
+    display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
     padding: var(--safe-t) var(--safe-r) 0 var(--safe-l);
-    transition: padding 0.8s ease;
   }
-  .top { display: flex; align-items: center; gap: 12px; padding: 10px 8px 0 20px; min-height: 56px; }
-  .brand { font-family: var(--serif); font-size: 1.1rem; letter-spacing: 0.06em; color: var(--brass); flex: none; }
-  .pulse { flex: 1; min-width: 0; font-family: var(--mono); font-size: 0.72rem; color: var(--ink-dim); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .pulse i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; background: #d9a45a; vertical-align: 0; }
-  .pulse.live i { background: #6fe0b4; box-shadow: 0 0 8px #6fe0b4; animation: breathe 5s ease-in-out infinite; }
-  .icon { width: 44px; height: 44px; display: grid; place-items: center; background: none; border: 0; border-radius: 50%; color: var(--ink-dim); flex: none; }
-  .icon:hover { color: var(--ink); }
+  .top { display: flex; align-items: center; gap: 16px; width: 100%; max-width: 1320px; margin: 0 auto; padding: 12px 10px 0 24px; min-height: 60px; }
+  .brand { font-family: var(--serif); font-weight: 600; font-size: 1.12rem; letter-spacing: -0.01em; flex: none; }
+  .pulse { flex: 1; min-width: 0; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 0.74rem; color: var(--ink-dim); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pulse i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 8px; border: 1px solid var(--ink-faint); vertical-align: 1px; }
+  .pulse.live i { border: 0; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: breathe 5s ease-in-out infinite; }
+  .icon { width: 44px; height: 44px; display: grid; place-items: center; background: none; border: 0; border-radius: var(--r-sm); color: var(--ink-dim); flex: none; transition: color var(--t-fast) ease, background var(--t-fast) ease, transform var(--t-fast) var(--ease-spring); }
+  .icon:hover { color: var(--ink); background: var(--surface-2); }
+  .icon:active { transform: scale(0.94); }
 
+  /* Phone: dial on top, details left-aligned beneath. Desktop: details left, dial right. */
   .stage {
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
-    min-height: 0; padding: 4px 16px; position: relative;
-    transform-origin: 50% 0; transition: transform 0.9s cubic-bezier(0.22, 0.8, 0.3, 1);
+    display: grid; grid-template-rows: auto auto; align-content: center; justify-items: center; gap: 28px;
+    width: 100%; max-width: 1320px; margin: 0 auto; min-height: 0;
+    padding: 4px 24px 8px; position: relative;
+    transform-origin: 50% 0; transition: transform 0.9s var(--ease-out), opacity 0.9s ease;
   }
-  .reveal { animation: reveal 3.2s ease both; }
-  .info { text-align: center; max-width: 560px; }
-  .name { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(1.9rem, 7vw, 3rem); line-height: 1.1; text-shadow: 0 0 30px var(--accent-glow); }
-  .tagline { margin: 6px 0 12px; font-family: var(--serif); font-style: italic; color: var(--ink-dim); font-size: clamp(0.95rem, 3.2vw, 1.1rem); }
-  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0; }
-  .chips span { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-dim); }
-  .chips span:first-child { color: var(--accent-ink); border-color: var(--accent-soft); }
-  .chips .sleep { color: var(--brass); border-color: var(--brass-dim); }
+  .reveal { animation: reveal 2.6s var(--ease-out) both; }
+  .info { justify-self: stretch; max-width: 34rem; }
+  .kicker { display: flex; align-items: baseline; gap: 10px; margin: 0 0 6px; color: var(--accent-ink); }
+  .count { font-size: 0.72rem; font-variant-caps: normal; letter-spacing: 0.02em; color: var(--ink-faint); }
+  .name {
+    margin: 0; font-family: var(--serif); font-weight: 560; font-variation-settings: 'opsz' 120;
+    font-size: clamp(2.3rem, 9.5vw, 4.6rem); line-height: 0.95; letter-spacing: -0.03em;
+  }
+  .tagline { margin: 10px 0 18px; max-width: 32ch; font-family: var(--serif); font-style: italic; font-weight: 380; color: var(--ink-dim); font-size: clamp(1rem, 3.4vw, 1.2rem); line-height: 1.45; }
+  .facts { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0; }
+  .facts div { display: grid; gap: 1px; }
+  .facts dt { font-size: 0.74rem; }
+  .facts dd { margin: 0; font-size: 0.92rem; font-weight: 500; color: var(--ink); }
+  .facts .sleep dd { color: var(--accent-ink); }
 
-  .caption { position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%); width: min(92%, 520px); margin: 0; text-align: center; font-family: var(--serif); font-style: italic; font-size: 1.02rem; color: var(--ink); text-shadow: 0 0 14px #000; opacity: 0; transition: opacity 2.4s ease; pointer-events: none; min-height: 1.5em; }
-  .caption.on { opacity: 0.95; }
+  .caption { position: absolute; left: 24px; right: 24px; bottom: 4px; margin: 0 auto; max-width: 34rem; text-align: center; font-family: var(--serif); font-style: italic; font-size: 1.05rem; color: var(--ink); text-shadow: 0 0 18px var(--bg); opacity: 0; transform: translateY(6px); transition: opacity 2.4s ease, transform 2.4s var(--ease-out); pointer-events: none; min-height: 1.5em; }
+  .caption.on { opacity: 0.95; transform: none; }
 
-  .dock { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 4px 8px calc(8px + var(--safe-b)); max-width: 640px; width: 100%; margin: 0 auto; }
-  .dock button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; padding: 6px 2px; background: none; border: 0; border-radius: 14px; color: var(--ink-dim); font-size: 0.7rem; line-height: 1.15; text-align: center; transition: color 0.4s, background 0.4s; }
+  .dock { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; width: 100%; max-width: 640px; margin: 0 auto; padding: 6px 12px calc(10px + var(--safe-b)); }
+  .dock button {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    min-height: 58px; padding: 6px 2px; background: none; border: 0; border-radius: var(--r-md);
+    color: var(--ink-dim); font-size: 0.74rem; font-weight: 500; line-height: 1.15; text-align: center;
+    transition: color var(--t-fast) ease, background var(--t-fast) ease, transform var(--t-fast) var(--ease-spring);
+  }
   .dock button svg { width: 22px; height: 22px; }
-  .dock button:hover, .dock button.active { color: var(--ink); }
-  .dock button.active { background: hsl(var(--hue) 60% 50% / 0.16); color: var(--accent-ink); }
+  .dock button:hover { color: var(--ink); background: var(--surface-2); }
+  .dock button:active { transform: scale(0.96); }
+  .dock button.active { color: var(--accent-ink); background: var(--accent-wash); box-shadow: inset 0 0 0 1px var(--accent-soft); }
 
   .chrome { transition: opacity 2.2s ease; }
   .hidden .chrome { opacity: 0; pointer-events: none; }
-  .hidden .tagline, .hidden .chips { opacity: 0.35; }
-  .tagline, .chips { transition: opacity 2.2s ease; }
+  .hidden .tagline, .hidden .facts { opacity: 0.3; }
+  .tagline, .facts { transition: opacity 2.2s ease; }
 
-  /* Phones: lift and shrink the stage so the dial stays visible above an open sheet. */
+  /* Phones: shrink the stage (transform only) so the dial stays visible above an open sheet. */
   .sheet .stage { transform: scale(0.6); }
+  .sheet .info { opacity: 0; }
+  .info { transition: opacity 0.6s ease; }
+
   @media (min-width: 900px) {
-    .sheet { padding-right: 440px; }
-    .sheet .stage { transform: none; }
+    .stage { grid-template-columns: minmax(18rem, 0.85fr) minmax(0, 1.15fr); grid-template-rows: none; align-items: center; justify-items: start; gap: 48px; padding: 0 56px 24px; }
+    .stage :global(.dial) { grid-column: 2; grid-row: 1; justify-self: center; }
+    .info { grid-column: 1; grid-row: 1; padding-bottom: 6vh; }
+    .caption { left: 56px; right: auto; bottom: 24px; text-align: left; margin: 0; }
+    .dock { margin: 0 0 0 max(44px, calc((100vw - 1320px) / 2 + 44px)); max-width: 560px; }
+    /* Drawer open: slide the whole stage left with a transform rather than animating layout. */
+    .sheet .stage { transform: translateX(-220px) scale(0.88); }
+    .sheet .info { opacity: 0; }
   }
 
-  .toast { position: fixed; left: 50%; bottom: calc(96px + var(--safe-b)); transform: translateX(-50%); margin: 0; padding: 10px 18px; max-width: min(90vw, 420px); border-radius: 999px; background: rgba(13, 11, 43, 0.92); border: 1px solid var(--accent-soft); font-size: 0.9rem; opacity: 0; transition: opacity 1.2s ease; pointer-events: none; z-index: 40; text-align: center; word-break: break-all; }
-  .toast.on { opacity: 1; }
+  .toast { position: fixed; left: 50%; bottom: calc(100px + var(--safe-b)); transform: translateX(-50%) translateY(8px); margin: 0; padding: 12px 18px; max-width: min(90vw, 420px); border-radius: var(--r-md); background: var(--panel); box-shadow: var(--shadow-lg), inset 0 0 0 1px var(--line-strong); font-size: 0.9rem; opacity: 0; transition: opacity 0.5s ease, transform 0.5s var(--ease-out); pointer-events: none; z-index: var(--z-toast); text-align: center; overflow-wrap: anywhere; }
+  .toast.on { opacity: 1; transform: translateX(-50%); }
 
-  @keyframes reveal { from { opacity: 0; filter: blur(8px); } to { opacity: 1; filter: none; } }
+  /* `translate`, not `transform`: a held animation would otherwise override the sheet's stage transform. */
+  @keyframes reveal { from { opacity: 0; translate: 0 12px; } to { opacity: 1; translate: none; } }
   @keyframes breathe { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
 </style>

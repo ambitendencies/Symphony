@@ -104,15 +104,15 @@
 
     // Trails: translucent wash instead of clearing, so motion smears softly.
     ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = 'rgba(7, 6, 26, 0.2)';
+    ctx.fillStyle = 'rgba(10, 12, 16, 0.2)'; // --bg, as a fading trail
     ctx.fillRect(0, 0, W, W);
 
     // Core glow breathes with the low end (and slowly on its own).
     const breathe = 0.5 + 0.5 * Math.sin(phase * 0.9);
     const glow = ctx.createRadialGradient(cx, cx, 0, cx, cx, R * (0.55 + level * 0.35 + breathe * 0.05));
-    glow.addColorStop(0, `hsla(${curHue}, 90%, 62%, ${0.28 + level * 0.5})`);
-    glow.addColorStop(0.5, `hsla(${curHue}, 80%, 45%, ${0.1 + level * 0.15})`);
-    glow.addColorStop(1, `hsla(${curHue}, 80%, 30%, 0)`);
+    glow.addColorStop(0, `hsla(${curHue}, 58%, 62%, ${0.24 + level * 0.45})`);
+    glow.addColorStop(0.5, `hsla(${curHue}, 50%, 42%, ${0.08 + level * 0.14})`);
+    glow.addColorStop(1, `hsla(${curHue}, 50%, 26%, 0)`);
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, W, W);
 
@@ -131,7 +131,7 @@
         const a = sign * t * Math.PI - Math.PI / 2 + phase * 0.03;
         const x0 = cx + Math.cos(a) * r0;
         const y0 = cx + Math.sin(a) * r0;
-        ctx.strokeStyle = `hsla(${curHue + t * 40 - 10}, 85%, ${55 + v * 25}%, ${0.25 + v * 0.55})`;
+        ctx.strokeStyle = `hsla(${curHue}, ${44 + t * 14}%, ${52 + v * 28}%, ${0.22 + v * 0.55})`;
         ctx.beginPath();
         ctx.moveTo(x0, y0);
         ctx.lineTo(cx + Math.cos(a) * (r0 + len), cx + Math.sin(a) * (r0 + len));
@@ -140,7 +140,7 @@
     }
     // Waveform ring.
     ctx.lineWidth = Math.max(1.2, W / 180);
-    ctx.strokeStyle = `hsla(${curHue}, 90%, 78%, 0.8)`;
+    ctx.strokeStyle = `hsla(${curHue}, 52%, 80%, 0.8)`;
     ctx.beginPath();
     const pts = quality < 0.6 ? 90 : 160;
     for (let i = 0; i <= pts; i++) {
@@ -164,7 +164,7 @@
       const m = MOTES[i];
       const a = m.a + phase * m.s * 6;
       const rr = R * (m.r * 0.95 + 0.04 * Math.sin(phase + i));
-      const c = colors.length ? colors[i % colors.length] : `hsl(${curHue} 80% 70%)`;
+      const c = colors.length ? colors[i % colors.length] : `hsl(${curHue} 52% 70%)`;
       ctx.fillStyle = c;
       ctx.globalAlpha = 0.18 + 0.4 * (0.5 + 0.5 * Math.sin(phase * m.z + i)) * (0.5 + level);
       ctx.beginPath();
@@ -222,5 +222,5 @@
 <canvas bind:this={canvas} class="visual" aria-hidden="true"></canvas>
 
 <style>
-  .visual { width: 100%; height: 100%; display: block; border-radius: 50%; background: #07061a; }
+  .visual { width: 100%; height: 100%; display: block; border-radius: 50%; background: var(--bg); }
 </style>

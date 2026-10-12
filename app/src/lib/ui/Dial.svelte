@@ -2,7 +2,7 @@
   /**
    * The tuning dial. A single ARIA slider (arrow keys / Home / End / PageUp/PageDown),
    * draggable with pointer events (touch-first), mouse-wheel tunable, with stations as
-   * glowing points on a brass arc and one ring per sounding voice around it.
+   * glowing points on a metal arc and one ring per sounding voice around it.
    */
   import { onDestroy, untrack } from 'svelte';
   import { fade } from 'svelte/transition';
@@ -194,7 +194,7 @@
 
   const angle = $derived(-DIAL_ARC / 2 + pos * stepAngle(n));
   const grain = $derived(Math.max(staticAmount(pos) * 1.1, tuning ? 0.7 : 0.05));
-  const hue = $derived(stations[shown]?.hue ?? 220);
+  const hue = $derived(stations[shown]?.hue ?? 36);
   const colors = $derived(voices.map((v) => v.color));
   const label = $derived(stations[shown] ? `${stations[shown].name}, station ${shown + 1} of ${n}` : 'Tuning');
 </script>
@@ -223,17 +223,17 @@
     <defs>
       {#each stations as s, i (s.id)}
         <radialGradient id="pt-{i}">
-          <stop offset="0" stop-color="hsl({s.hue} 90% 68%)" stop-opacity="0.9" />
-          <stop offset="1" stop-color="hsl({s.hue} 90% 60%)" stop-opacity="0" />
+          <stop offset="0" stop-color="hsl({s.hue} 58% 68%)" stop-opacity="0.9" />
+          <stop offset="1" stop-color="hsl({s.hue} 58% 60%)" stop-opacity="0" />
         </radialGradient>
       {/each}
     </defs>
 
     <!-- bezel -->
-    <circle cx={C} cy={C} r="57" fill="none" stroke="var(--brass-dim)" stroke-width="0.6" opacity="0.7" />
+    <circle cx={C} cy={C} r="57" fill="none" stroke="var(--metal-dim)" stroke-width="0.6" opacity="0.7" />
     <circle cx={C} cy={C} r="55.4" fill="none" stroke="var(--accent)" stroke-width="0.5" opacity="0.5" />
-    <path d={arcPath} fill="none" stroke="var(--brass)" stroke-width="0.5" opacity="0.6" />
-    <path d={ticks} stroke="var(--brass)" stroke-width="0.45" opacity="0.65" />
+    <path d={arcPath} fill="none" stroke="var(--metal)" stroke-width="0.5" opacity="0.6" />
+    <path d={ticks} stroke="var(--metal)" stroke-width="0.45" opacity="0.65" />
 
     <!-- voice rings -->
     {#each rings as ring (ring.id)}
@@ -251,13 +251,13 @@
       {@const a = stationAngle(i, n)}
       <g transform="rotate({a} {C} {C})" class="pt" class:on={i === shown}>
         <circle cx={C} cy={C - 73.5} r={i === shown ? 10 : 6} fill="url(#pt-{i})" class="halo" />
-        <circle cx={C} cy={C - 73.5} r={i === shown ? 2.5 : 1.7} fill="hsl({s.hue} 90% 78%)" class="core" />
+        <circle cx={C} cy={C - 73.5} r={i === shown ? 2.5 : 1.7} fill="hsl({s.hue} 55% 80%)" class="core" />
       </g>
     {/each}
 
     <!-- needle -->
     <g class="needle" style="transform: rotate({angle}deg); transition-duration: {dragging || reduced ? 0 : 900}ms">
-      <path d="M{C} {C - 55}L{C} {C - 70}" stroke="var(--brass)" stroke-width="0.9" stroke-linecap="round" />
+      <path d="M{C} {C - 55}L{C} {C - 70}" stroke="var(--metal)" stroke-width="0.9" stroke-linecap="round" />
       <path d="M{C - 2.6} {C - 55.5}L{C + 2.6} {C - 55.5}L{C} {C - 51}Z" fill="var(--accent)" />
     </g>
   </svg>
@@ -269,7 +269,7 @@
 
 <style>
   .dial {
-    --size: min(86vw, calc(100dvh - 340px), 560px);
+    --size: min(86vw, calc(100dvh - 380px), 560px);
     flex: none;
     position: relative;
     width: var(--size);
@@ -283,14 +283,15 @@
     outline-offset: 0;
   }
   .dial.dragging { cursor: grabbing; }
+  @media (min-width: 900px) { .dial { --size: min(46vw, calc(100dvh - 210px), 620px); } }
   svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
   .face {
     position: absolute; inset: 26.4%;
     border-radius: 50%; overflow: hidden;
     box-shadow:
-      0 0 0 1px hsl(var(--hue) 40% 60% / 0.35),
-      0 0 40px var(--accent-glow),
-      inset 0 0 24px rgba(0, 0, 0, 0.7);
+      0 0 0 1px hsl(var(--hue) 30% 60% / 0.3),
+      0 0 48px var(--accent-glow),
+      inset 0 0 28px hsl(222 40% 2% / 0.8);
     transition: box-shadow 3s ease;
   }
   .needle { transform-origin: 104px 104px; transition-property: transform; transition-timing-function: cubic-bezier(0.22, 0.8, 0.3, 1); filter: drop-shadow(0 0 2px var(--accent)); }

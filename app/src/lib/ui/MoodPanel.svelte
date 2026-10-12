@@ -20,7 +20,7 @@
 
 <Sheet title="Mood, timer and volume" {onclose}>
   <section aria-labelledby="mood-h">
-    <h3 id="mood-h">Mood</h3>
+    <h3 id="mood-h" class="label">Mood</h3>
     <div class="seg" role="group" aria-label="Mood">
       {#each moods as m (m)}
         <button aria-pressed={es.mood === m} onclick={() => engine.setMood(m)}>
@@ -32,7 +32,7 @@
   </section>
 
   <section aria-labelledby="sleep-h">
-    <h3 id="sleep-h">Sleep timer</h3>
+    <h3 id="sleep-h" class="label">Sleep timer</h3>
     <div class="seg" role="group" aria-label="Sleep timer in minutes">
       {#each timers as t (t)}
         <button aria-pressed={active === t} onclick={() => setTimer(t)}>{t}<span class="u"> min</span></button>
@@ -40,7 +40,7 @@
     </div>
     {#if remaining !== null}
       <p class="desc" role="status">
-        Drifting to silence in <strong class="mono">{formatRemaining(remaining)}</strong>. Voices thin out over the last five minutes.
+        Drifting to silence in <strong class="num">{formatRemaining(remaining)}</strong>. Voices thin out over the last five minutes.
         <button class="link" onclick={() => setTimer(null)}>Cancel timer</button>
       </p>
     {:else}
@@ -49,7 +49,7 @@
   </section>
 
   <section aria-labelledby="vol-h">
-    <h3 id="vol-h">Volume</h3>
+    <h3 id="vol-h" class="label">Volume</h3>
     <label class="vol">
       <span class="sr-only">Volume</span>
       <input
@@ -58,23 +58,36 @@
         aria-valuetext="{Math.round(es.volume * 100)} percent"
         oninput={(e) => engine.setVolume(+e.currentTarget.value)}
       />
-      <output class="mono">{Math.round(es.volume * 100)}%</output>
+      <output class="num">{Math.round(es.volume * 100)}%</output>
     </label>
     <p class="desc">Even at the far right this stays under a safe listening ceiling, so it will never surprise you.</p>
   </section>
 </Sheet>
 
 <style>
-  section { margin: 6px 0 18px; }
-  h3 { margin: 0 0 8px; font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-ink); }
-  .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px; }
-  .seg button { min-height: 48px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.04); font-family: var(--serif); font-size: 1.02rem; }
-  .seg button[aria-pressed='true'] { background: hsl(var(--hue) 70% 58% / 0.9); color: #0a0820; border-color: var(--accent); font-weight: 600; }
-  .u { font-family: var(--sans); font-size: 0.75rem; }
-  .desc { margin: 8px 0 0; color: var(--ink-dim); font-size: 0.9rem; }
-  .mono { font-family: var(--mono); color: var(--ink); }
-  .link { background: none; border: 0; padding: 12px 4px; color: var(--accent-ink); text-decoration: underline; }
-  .vol { display: flex; align-items: center; gap: 12px; }
-  .vol input { flex: 1; min-height: 44px; accent-color: var(--accent); }
-  .vol output { width: 3.2em; text-align: right; }
+  section { padding: 14px 0 20px; border-top: 1px solid var(--line); }
+  section:first-child { border-top: 0; padding-top: 4px; }
+  h3 { margin: 0 0 10px; }
+  .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; border-radius: var(--r-md); background: var(--surface); }
+  .seg button {
+    min-height: 46px; border: 0; border-radius: var(--r-sm); background: none; color: var(--ink-dim);
+    font-family: var(--serif); font-size: 1.04rem; font-weight: 500;
+    transition: background var(--t-fast) ease, color var(--t-fast) ease, transform var(--t-fast) var(--ease-spring);
+  }
+  .seg button:hover { color: var(--ink); background: var(--surface-2); }
+  .seg button:active { transform: scale(0.97); }
+  .seg button[aria-pressed='true'] { background: var(--accent); color: var(--on-accent); box-shadow: 0 4px 16px hsl(var(--hue) 60% 30% / 0.35); }
+  .u { margin-left: 0.2em; font-family: var(--sans); font-size: 0.76rem; }
+  .desc { margin: 10px 0 0; max-width: 48ch; color: var(--ink-dim); font-size: 0.9rem; }
+  .num { color: var(--ink); font-weight: 500; }
+  .link { background: none; border: 0; padding: 12px 4px; color: var(--accent-ink); text-decoration: underline; text-underline-offset: 3px; transition: color var(--t-fast) ease; }
+  .link:hover { color: var(--ink); }
+  .vol { display: flex; align-items: center; gap: 14px; }
+  .vol input { -webkit-appearance: none; appearance: none; flex: 1; min-height: 44px; background: transparent; cursor: pointer; }
+  .vol input::-webkit-slider-runnable-track { height: 3px; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--line-strong)); }
+  .vol input::-moz-range-track { height: 3px; border-radius: 3px; background: var(--line-strong); }
+  .vol input::-moz-range-progress { height: 3px; background: var(--accent); }
+  .vol input::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; margin-top: -8.5px; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 4px hsl(222 24% 5% / 0.8), 0 0 14px var(--accent-glow); }
+  .vol input::-moz-range-thumb { width: 20px; height: 20px; border: 0; border-radius: 50%; background: var(--ink); }
+  .vol output { width: 3.4em; text-align: right; }
 </style>

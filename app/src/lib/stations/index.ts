@@ -93,7 +93,7 @@ export const FULL_COSMOS: StationConfig = {
   name: 'Full Cosmos',
   tagline: 'Every voice, in evolving movements',
   mood: 'drift',
-  hue: 220,
+  hue: 350, // stellar rose
   lesson: 'Everything here is real measurement turned into music — some sped-up waveforms (audification), some numbers mapped to notes (sonification).',
   movements: [
     { bars: 48, voices: [

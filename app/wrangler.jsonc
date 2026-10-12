@@ -3,5 +3,5 @@
   // The name must match the Cloudflare project name ("symphony").
   "name": "symphony",
   "compatibility_date": "2026-09-01",
-  "assets": { "directory": "./dist" }
+  "assets": { "directory": "./dist", "not_found_handling": "404-page" }
 }

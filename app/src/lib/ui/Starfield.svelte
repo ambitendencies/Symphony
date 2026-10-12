@@ -22,7 +22,7 @@
       const big = rnd() > 0.96;
       const r = big ? 1.1 + rnd() * 0.7 : 0.3 + rnd() * 0.6;
       const warm = rnd() > 0.7;
-      ctx.fillStyle = `hsla(${warm ? 38 : 220}, ${warm ? 60 : 40}%, ${80 + rnd() * 18}%, ${0.25 + rnd() * 0.6})`;
+      ctx.fillStyle = `hsla(${warm ? 40 : 222}, ${warm ? 30 : 18}%, ${82 + rnd() * 16}%, ${0.2 + rnd() * 0.55})`;
       ctx.beginPath();
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();
@@ -42,20 +42,24 @@
 </script>
 
 <div class="sky" aria-hidden="true">
-  <div class="nebula"></div>
+  <div class="glow"></div>
   <canvas bind:this={canvas}></canvas>
 </div>
+<div class="grain" aria-hidden="true"></div>
 
 <style>
-  .sky { position: fixed; inset: 0; overflow: hidden; background: radial-gradient(120% 90% at 50% 0%, #15123f 0%, var(--bg) 62%); z-index: 0; }
-  .nebula {
-    position: absolute; inset: -20%;
-    background:
-      radial-gradient(40% 35% at 30% 70%, hsl(var(--hue) 70% 40% / 0.2), transparent 70%),
-      radial-gradient(45% 40% at 78% 25%, hsl(calc(var(--hue) + 70) 60% 40% / 0.14), transparent 70%);
-    animation: breathe 22s ease-in-out infinite alternate;
+  .sky {
+    position: fixed; inset: 0; z-index: var(--z-sky); overflow: hidden;
+    background: radial-gradient(140% 100% at 70% 110%, var(--bg-2) 0%, var(--bg) 60%);
   }
-  canvas { position: absolute; left: 0; top: 0; width: 130vw; height: 130vh; animation: drift 240s linear infinite alternate; opacity: 0.9; }
+  /* One off-centre wash of the station's hue, low and to the right, like light pollution on a horizon. */
+  .glow {
+    position: absolute; inset: -25%;
+    background:
+      radial-gradient(38% 30% at 68% 62%, hsl(var(--hue) 45% 38% / 0.16), transparent 70%);
+    animation: breathe 26s ease-in-out infinite alternate;
+  }
+  canvas { position: absolute; left: 0; top: 0; width: 130vw; height: 130vh; animation: drift 240s linear infinite alternate; opacity: 0.85; }
   @keyframes drift { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-8vw, -6vh, 0); } }
-  @keyframes breathe { from { opacity: 0.6; transform: scale(1); } to { opacity: 1; transform: scale(1.06); } }
+  @keyframes breathe { from { opacity: 0.7; transform: scale(1); } to { opacity: 1; transform: scale(1.05); } }
 </style>

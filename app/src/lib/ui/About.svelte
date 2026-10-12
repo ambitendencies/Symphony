@@ -12,10 +12,10 @@
     <strong>sonification</strong> (numbers from real instruments mapped onto notes in one shared key and tempo). Each voice says which it is.
   </p>
   <p>Cosmic Radio is free, makes no account and collects nothing. The music is generated in your browser.</p>
-  <h3>Voices and data credits</h3>
+  <h3 class="label">Voices and data credits</h3>
   <ul>
     {#each engine.voiceList as v (v.id)}
-      <li style="--c: {v.color}">
+      <li style="--c-raw: {v.color}">
         <span class="dot" aria-hidden="true"></span>
         <div>
           <strong>{v.name}</strong>
@@ -28,15 +28,23 @@
       </li>
     {/each}
   </ul>
+  <p class="legal" id="privacy">
+    Privacy: no accounts, no cookies, no tracking. Your saved blends stay in this browser.
+    Data is public open data from NASA, NOAA, ESA, LIGO–Virgo–KAGRA and the ATNF, credited above.
+    <a href="https://github.com/ambitendencies/Symphony" target="_blank" rel="noopener noreferrer">Source code</a>
+  </p>
 </Sheet>
 
 <style>
-  .honest { font-family: var(--serif); font-size: 1.05rem; line-height: 1.55; padding: 12px 14px; border-left: 2px solid var(--brass); background: rgba(201, 164, 98, 0.08); border-radius: 0 10px 10px 0; margin-top: 4px; }
-  h3 { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-ink); }
-  ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
-  li { display: flex; gap: 12px; }
-  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: 0 0 10px var(--c); margin-top: 7px; flex: none; }
-  .tag { font-family: var(--mono); font-size: 0.72rem; margin-left: 8px; color: var(--ink-dim); }
-  li p { margin: 2px 0 0; font-size: 0.86rem; color: var(--ink-dim); }
-  p { font-size: 0.95rem; }
+  .honest { margin: 4px 0 18px; max-width: 36ch; font-family: var(--serif); font-size: 1.2rem; line-height: 1.42; letter-spacing: -0.01em; }
+  .honest strong { font-weight: 600; color: var(--accent-ink); }
+  p { font-size: 0.94rem; color: var(--ink-dim); max-width: 52ch; }
+  h3 { margin: 26px 0 6px; padding-top: 18px; border-top: 1px solid var(--line); }
+  ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 16px; }
+  li { --c: color-mix(in oklab, var(--c-raw, var(--accent)) 78%, var(--ink-dim)); display: flex; gap: 12px; }
+  .dot { width: 8px; height: 8px; border-radius: 2px; transform: rotate(45deg); background: var(--c); box-shadow: 0 0 10px var(--c); margin-top: 8px; flex: none; }
+  li strong { font-family: var(--serif); font-weight: 560; font-size: 1.05rem; color: var(--ink); }
+  .tag { margin-left: 8px; font-size: 0.72rem; font-weight: 500; padding: 2px 6px; border-radius: var(--r-xs); background: var(--surface-2); color: var(--ink-dim); }
+  li p { margin: 3px 0 0; font-size: 0.86rem; }
+  .legal { margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 0.82rem; color: var(--ink-faint); }
 </style>
