@@ -1,0 +1,13 @@
+{
+  "name": "cosmic-radio-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --test-scheduled",
+    "deploy": "wrangler deploy",
+    "test": "cd ../app && npx vitest run tests/worker.test.ts"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

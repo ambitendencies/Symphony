@@ -1,0 +1,58 @@
+{
+ "version": 1,
+ "voice": "atomic-echoes",
+ "kind": "archive",
+ "updated": "2026-10-12T00:00:00Z",
+ "source": "Gamma-ray line energies (NNDC) and detections by INTEGRAL/SPI, CGRO/COMPTEL and NuSTAR",
+ "isotopes": [
+  {
+   "name": "Aluminium-26",
+   "linesKeV": [
+    1808.65
+   ],
+   "halfLifeYears": 717000,
+   "where": "spread through the Milky Way's star-forming disc",
+   "mission": "COMPTEL and INTEGRAL"
+  },
+  {
+   "name": "Iron-60",
+   "linesKeV": [
+    1173.2,
+    1332.5
+   ],
+   "halfLifeYears": 2620000,
+   "where": "debris of ancient supernovae across the Galaxy",
+   "mission": "INTEGRAL"
+  },
+  {
+   "name": "Titanium-44",
+   "linesKeV": [
+    67.9,
+    78.4,
+    1157.0
+   ],
+   "halfLifeYears": 59.1,
+   "where": "the supernova remnant Cassiopeia A",
+   "mission": "NuSTAR and INTEGRAL"
+  },
+  {
+   "name": "Cobalt-56",
+   "linesKeV": [
+    846.8,
+    1238.3
+   ],
+   "halfLifeYears": 0.2114,
+   "where": "the exploding white dwarf SN 2014J",
+   "mission": "INTEGRAL"
+  },
+  {
+   "name": "Positronium",
+   "linesKeV": [
+    511.0
+   ],
+   "halfLifeYears": 0,
+   "where": "the centre of the Milky Way, where matter meets antimatter",
+   "mission": "INTEGRAL"
+  }
+ ]
+}

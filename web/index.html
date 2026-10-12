@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Symphony of Space</title>
+<meta name="description" content="Hear space: orbits, pulsars, black holes, gravitational waves, plasma and the solar wind, synthesised live in your browser.">
+<style>
+:root{
+  --bg:#05060f; --panel:#0d1024cc; --panel-b:#262c55; --text:#e6e9ff; --dim:#97a0d0;
+  --accent:#8ab4ff; --accent2:#ffb86b; --on:#2a3a8a; --danger:#ff6b8b;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#stars{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:24px 16px 64px}
+h1{font-weight:300;letter-spacing:.12em;text-transform:uppercase;font-size:clamp(1.5rem,5vw,2.6rem);margin:.4em 0 .1em}
+.sub{color:var(--dim);margin:0 0 18px;max-width:60ch}
+.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--panel-b);border-radius:14px;padding:12px 14px;backdrop-filter:blur(6px)}
+.bar label{display:flex;align-items:center;gap:8px;color:var(--dim);font-size:.9rem}
+button,.filebtn{font:inherit;color:var(--text);background:#151a3d;border:1px solid var(--panel-b);border-radius:999px;padding:8px 16px;cursor:pointer;min-height:40px}
+button:hover,.filebtn:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,.filebtn:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+button[aria-pressed="true"]{background:var(--on);border-color:var(--accent)}
+.primary{background:linear-gradient(135deg,#3c58d8,#7c4bd6);border-color:transparent}
+input[type=range]{accent-color:var(--accent);width:140px}
+.filebtn input{position:absolute;opacity:0;width:1px;height:1px}
+.filebtn{position:relative;display:inline-flex;align-items:center}
+.vis{margin:16px 0;background:#02030a;border:1px solid var(--panel-b);border-radius:14px;overflow:hidden;position:relative}
+#spec{display:block;width:100%;height:220px}
+.vis small{position:absolute;left:10px;top:6px;color:var(--dim);font-size:.75rem;pointer-events:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--panel-b);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;backdrop-filter:blur(6px);transition:border-color .3s, box-shadow .3s}
+.card.playing{border-color:var(--accent);box-shadow:0 0 24px #4a6bff44}
+.card h2{margin:0;font-size:1.1rem;font-weight:600}
+.card .tag{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2)}
+.card p{margin:0;color:var(--dim);font-size:.9rem;flex:1}
+.card .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+footer{margin-top:28px;color:var(--dim);font-size:.82rem}
+#status{color:var(--dim);font-size:.85rem;min-height:1.2em}
+@media (max-width:520px){input[type=range]{width:110px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<main>
+  <h1>Symphony of Space</h1>
+  <p class="sub">Space is silent to our ears, but it is full of oscillations. These are real physical numbers (orbital periods, pulsar spins, gravitational-wave chirps) shifted into the range of human hearing and synthesised live in your browser. Headphones recommended.</p>
+
+  <div class="bar" role="group" aria-label="Controls">
+    <button id="playall" class="primary" aria-pressed="false">Play all (tour)</button>
+    <button id="stopall">Stop</button>
+    <label>Volume <input id="vol" type="range" min="0" max="1" step="0.01" value="0.6" aria-label="Master volume"></label>
+    <label class="filebtn">Load symphony.wav<input id="file" type="file" accept="audio/*"></label>
+    <button id="filestop" hidden>Stop file</button>
+    <span id="status" role="status"></span>
+  </div>
+
+  <div class="vis"><canvas id="spec"></canvas><small>spectrogram: time flows left, frequency 40 Hz - 10 kHz (log) bottom to top</small></div>
+
+  <div class="grid" id="cards"></div>
+
+  <footer>
+    Same mappings as the Python package (<code>symphony render</code>). Inspired by NASA Chandra sonifications, SYSTEM Sounds, Juno Waves, Voyager PWS, LIGO/GWOSC and NOAA SWPC.
+    The solar wind card uses a built-in offline sample, not live data.
+  </footer>
+</main>
+
+<script>
+"use strict";
+/* ------------------------------------------------------------------ data */
+const DAY = 86400, YEAR = 365.25 * DAY;
+const PLANETS = {Mercury:87.969, Venus:224.701, Earth:365.256, Mars:686.980, Jupiter:4332.59, Saturn:10759.22, Uranus:30685.4, Neptune:60189.0};
+const TRAPPIST = [1.51087, 2.42182, 4.04961, 6.09965, 9.20669, 12.35294, 18.76712];
+const PULSARS = [
+  {name:"Vela", period:0.08933, freq:330, pan:-0.5},
+  {name:"Crab", period:0.0337, freq:520, pan:0.4},
+  {name:"B0329+54", period:0.7145, freq:220, pan:-0.1},
+  {name:"B1937+21", period:0.0015578, freq:0, pan:0.7}
+];
+const MUSICAL = [55, 1760];
+
+/* -------------------------------------------------------- shared mappings */
+function foldInto(f, band = MUSICAL){
+  while (f < band[0]) f *= 2;
+  while (f > band[1]) f /= 2;
+  return f;
+}
+function sharedTransposition(freqs, target = [80, 1200]){
+  const geo = Math.exp(freqs.reduce((a, f) => a + Math.log(f), 0) / freqs.length);
+  const n = Math.round(Math.log2(Math.sqrt(target[0] * target[1]) / geo));
+  return freqs.map(f => f * Math.pow(2, n));
+}
+function logMap(v, s, d){
+  v = Math.min(s[1], Math.max(s[0], v));
+  const u = (Math.log(v) - Math.log(s[0])) / (Math.log(s[1]) - Math.log(s[0]));
+  return Math.exp(Math.log(d[0]) + u * (Math.log(d[1]) - Math.log(d[0])));
+}
+function linMap(v, s, d){ const u = Math.min(1, Math.max(0, (v - s[0]) / (s[1] - s[0]))); return d[0] + u * (d[1] - d[0]); }
+function quantizePentatonic(f, root = 48){
+  const m = 69 + 12 * Math.log2(f / 440) - root, oct = Math.floor(m / 12), w = m - 12 * oct;
+  let best = 0, bd = 99;
+  for (const c of [0, 2, 4, 7, 9, 12]) if (Math.abs(w - c) < bd){ bd = Math.abs(w - c); best = c; }
+  return 440 * Math.pow(2, (root + 12 * oct + best - 69) / 12);
+}
+function orbitFreqs(periodsDays){
+  return sharedTransposition(periodsDays.map(p => 1 / (p * DAY))).map(f => foldInto(f));
+}
+
+/* Built-in CME sample (port of symphony/sources/solar_wind.py) */
+function solarSample(){
+  const rows = [], shock = 20;
+  for (let h = 0; h < 60; h++){
+    const wob = Math.sin(h * 1.7) * .5 + Math.sin(h * .63 + 1) * .5;
+    let speed, dens, temp, bz;
+    if (h < shock){ speed = 380 + 12 * wob; dens = 5 + 1.2 * wob; temp = 7e4 + 8e3 * wob; bz = 1.5 + 2 * wob; }
+    else {
+      const k = h - shock, sheath = Math.exp(-k / 6);
+      speed = 430 + 240 * Math.min(1, k / 1.5) * Math.exp(-Math.max(0, k - 14) / 40) + 25 * wob;
+      dens = 6 + 24 * sheath + 1.5 * wob;
+      temp = 9e4 + 4.5e5 * sheath * (k < 20 ? 1 : .5) + 6e4 * Math.exp(-k / 25) + 1.5e4 * wob;
+      const cloud = Math.exp(-Math.pow((k - 9) / 5.5, 2));
+      bz = -19 * cloud + 3 * wob * (1 - .5 * cloud) + 2 * Math.exp(-k / 30);
+    }
+    rows.push({speed, density: Math.max(.5, dens), temperature: Math.max(1e4, temp), bz});
+  }
+  return rows;
+}
+const SOLAR = solarSample();
+
+/* ----------------------------------------------------------- audio engine */
+let ctx = null, master = null, analyser = null, fileSrc = null;
+const active = new Map();   // id -> {stop}
+let tourTimer = null;
+
+function ensureCtx(){
+  if (ctx) { if (ctx.state === "suspended") ctx.resume(); return; }
+  ctx = new (window.AudioContext || window.webkitAudioContext)();
+  master = ctx.createGain();
+  master.gain.value = +document.getElementById("vol").value;
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -14; comp.ratio.value = 4;
+  analyser = ctx.createAnalyser();
+  analyser.fftSize = 4096; analyser.smoothingTimeConstant = 0.5;
+  master.connect(comp); comp.connect(analyser); analyser.connect(ctx.destination);
+}
+
+/* Helper that collects nodes/timers so a source can be torn down cleanly. */
+function Voice(){
+  const nodes = [], timers = [], out = ctx.createGain();
+  out.gain.value = 0;
+  out.gain.setTargetAtTime(1, ctx.currentTime, 0.4);
+  out.connect(master);
+  const v = {
+    out, ctx,
+    osc(type, f, g = 1, dest = out){
+      const o = ctx.createOscillator(), a = ctx.createGain();
+      o.type = type; o.frequency.value = f; a.gain.value = g;
+      o.connect(a); a.connect(dest); o.start(); nodes.push(o, a);
+      return {o, g: a};
+    },
+    node(n){ nodes.push(n); return n; },
+    every(ms, fn){ timers.push(setInterval(fn, ms)); },
+    stop(){
+      timers.forEach(clearInterval);
+      out.gain.cancelScheduledValues(ctx.currentTime);
+      out.gain.setTargetAtTime(0, ctx.currentTime, 0.15);
+      setTimeout(() => { nodes.forEach(n => { try{ n.stop && n.stop(); }catch(e){} try{ n.disconnect(); }catch(e){} }); out.disconnect(); }, 900);
+    }
+  };
+  return v;
+}
+let noiseBuf = null;
+function noiseBuffer(){
+  if (noiseBuf && noiseBuf.sampleRate === ctx.sampleRate) return noiseBuf;
+  const b = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate), d = b.getChannelData(0);
+  let s = 12345;
+  for (let i = 0; i < d.length; i++){ s = (s * 1664525 + 1013904223) >>> 0; d[i] = s / 2147483648 - 1; }
+  return noiseBuf = b;
+}
+function panner(v, p){ const n = v.node(ctx.createStereoPanner()); n.pan.value = p; n.connect(v.out); return n; }
+
+/* Several slow sinusoids, one per body: a chord whose intervals are the physical period ratios. */
+function chordEngine(periodsDays, opts){
+  return () => {
+    const v = Voice(), f = orbitFreqs(periodsDays), n = f.length;
+    const timeScale = opts.beatDays / opts.beatSeconds;  // days of real time per audio second
+    f.forEach((freq, i) => {
+      const p = panner(v, 0), mix = v.node(ctx.createGain());
+      mix.gain.value = 0.775 / Math.sqrt(n) * opts.gain; mix.connect(p);
+      [[1, 1], [2, .3], [3, .12]].forEach(([r, a]) => { if (freq * r < ctx.sampleRate / 2.2) v.osc("sine", freq * r, a, mix); });
+      const rate = timeScale / periodsDays[i];                       // orbits per audio second
+      const swell = v.osc("sine", rate * 2, 0.225 / 0.775, mix.gain);  // gain LFO: swell once per orbit
+      const lfo = v.osc("sine", rate, 0.9, p.pan);                    // pan follows position round the star
+    });
+    return v;
+  };
+}
+
+/* ---------------------------------------------------------------- engines */
+const ENGINES = {};
+
+ENGINES.orbits = chordEngine(Object.values(PLANETS), {beatDays: PLANETS.Mercury, beatSeconds: 1.2, gain: 1});
+ENGINES.trappist = chordEngine(TRAPPIST, {beatDays: TRAPPIST[0], beatSeconds: 1.0, gain: 1.1});
+
+ENGINES.pulsars = () => {
+  const v = Voice(), step = 0.025, ahead = 0.25;
+  const next = PULSARS.map(() => ctx.currentTime + 0.1);
+  PULSARS.forEach((p, i) => {
+    if (p.period < 0.005){   // millisecond pulsar: pulse rate itself is a pitch (642 Hz)
+      const pn = panner(v, p.pan), g = v.node(ctx.createGain()); g.gain.value = 0.12; g.connect(pn);
+      const o = v.osc("sawtooth", 1 / p.period, 1, g);
+      next[i] = Infinity;
+    }
+  });
+  const nb = noiseBuffer();
+  function tick(i, t){
+    const p = PULSARS[i], pn = panner(v, p.pan), g = ctx.createGain(), o = ctx.createOscillator();
+    o.type = "triangle"; o.frequency.value = p.freq;
+    const dur = Math.min(0.12, p.period * 0.8);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.5, t + 0.002);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g); g.connect(pn); o.start(t); o.stop(t + dur + 0.02);
+    o.onended = () => { try{ g.disconnect(); pn.disconnect(); }catch(e){} };
+  }
+  v.every(step * 1000, () => {
+    const now = ctx.currentTime;
+    for (let i = 0; i < PULSARS.length; i++){
+      while (next[i] < now + ahead){ tick(i, Math.max(next[i], now)); next[i] += PULSARS[i].period; }
+    }
+  });
+  return v;
+};
+
+ENGINES.gravitational = () => {
+  const v = Voice();
+  const stretch = () => +document.getElementById("gwstretch").value;
+  const MC = 28.3 * 4.925490947e-6;                      // chirp mass in seconds (G*Mc/c^3)
+  const fOfTau = tau => Math.pow(5 / (256 * tau), 3 / 8) / Math.PI * Math.pow(MC, -5 / 8);
+  const tauOfF = f => (5 / 256) * Math.pow(MC, -5 / 3) * Math.pow(Math.PI * f, -8 / 3);
+  function build(s){
+    const sr = ctx.sampleRate, f0 = 35, f1 = 250;
+    const tau0 = tauOfF(f0), tmerge = tau0 - tauOfF(f1);   // real inspiral time 35 -> 250 Hz
+    const nIn = Math.floor(tmerge * s * sr), nRing = Math.floor(0.25 * Math.max(1, s * .3) * sr), nGap = Math.floor(1.2 * sr);
+    const buf = ctx.createBuffer(2, nIn + nRing + nGap, sr), L = buf.getChannelData(0), R = buf.getChannelData(1);
+    let ph = 0, amax = 0;
+    for (let i = 0; i < nIn; i++){
+      const r = i / sr / s, f = fOfTau(tau0 - r);
+      ph += 2 * Math.PI * f / sr;
+      const a = Math.pow(f / f1, 2 / 3), x = a * (Math.sin(ph) + 0.25 * Math.sin(2 * ph));
+      L[i] = R[i] = x; amax = Math.max(amax, Math.abs(x));
+    }
+    const decay = 0.004 * Math.max(1, s * .3);
+    for (let k = 0; k < nRing; k++){
+      ph += 2 * Math.PI * f1 / sr;
+      const x = Math.exp(-k / sr / decay) * Math.sin(ph);
+      L[nIn + k] = R[nIn + k] = x;
+    }
+    const norm = 0.7 / Math.max(amax, 1);
+    for (let i = 0; i < L.length; i++){ L[i] *= norm; R[i] *= norm; }
+    return buf;
+  }
+  const g = v.node(ctx.createGain()); g.gain.value = 0.9; g.connect(v.out);
+  let src = null, last = null;
+  function start(){
+    const s = stretch(); last = s;
+    const old = src;
+    src = ctx.createBufferSource(); src.buffer = build(s); src.loop = true; src.connect(g); src.start();
+    if (old){ try{ old.stop(); old.disconnect(); }catch(e){} }
+    v.node(src);
+  }
+  start();
+  v.every(250, () => { if (stretch() !== last) start(); });
+  return v;
+};
+
+ENGINES.black_hole = () => {
+  // Perseus cluster: pressure waves with ~9.6 Myr period, shifted up 57 octaves.
+  const f = (1 / (9.6e6 * YEAR)) * Math.pow(2, 57);
+  const v = Voice(), pn = panner(v, 0), g = v.node(ctx.createGain()); g.gain.value = 0.35; g.connect(pn);
+  [[1, 1], [2, .5], [3, .25], [.5, .7]].forEach(([r, a], i) => {
+    const {o} = v.osc("sine", f * r, a, g);
+    const d = v.osc("sine", 0.05 + 0.03 * i, 1.2 + i, o.detune);  // slow drifting detune (cents)
+  });
+  // slow "sound wave ripples" every ~9.6 s of audio swell
+  const lfo = v.osc("sine", 1 / 9.6, 0.5, g.gain);
+  const rumble = v.node(ctx.createBufferSource()); rumble.buffer = noiseBuffer(); rumble.loop = true;
+  const lp = v.node(ctx.createBiquadFilter()); lp.type = "lowpass"; lp.frequency.value = 160;
+  const rg = v.node(ctx.createGain()); rg.gain.value = 0.35;
+  rumble.connect(lp); lp.connect(rg); rg.connect(v.out); rumble.start();
+  v.f = f;
+  return v;
+};
+
+ENGINES.plasma = () => {
+  const v = Voice(), nb = noiseBuffer();
+  // Hiss: band-limited noise
+  const hs = v.node(ctx.createBufferSource()); hs.buffer = nb; hs.loop = true;
+  const bp = v.node(ctx.createBiquadFilter()); bp.type = "bandpass"; bp.frequency.value = 3200; bp.Q.value = 0.6;
+  const hg = v.node(ctx.createGain()); hg.gain.value = 0.07;
+  hs.connect(bp); bp.connect(hg); hg.connect(v.out); hs.start();
+  function sweep(t, f0, f1, dur, amp, pan){
+    const o = ctx.createOscillator(), g = ctx.createGain(), p = ctx.createStereoPanner();
+    o.type = "sine"; p.pan.value = pan;
+    o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(amp, t + dur * 0.15);
+    g.gain.linearRampToValueAtTime(0, t + dur);
+    o.connect(g); g.connect(p); p.connect(v.out); o.start(t); o.stop(t + dur + 0.05);
+    o.onended = () => { try{ g.disconnect(); p.disconnect(); }catch(e){} };
+  }
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  let nextChorus = ctx.currentTime + 0.5, nextWhistler = ctx.currentTime + 2;
+  v.every(100, () => {
+    const now = ctx.currentTime;
+    while (nextChorus < now + 0.4){   // chorus: bursts of rising tones
+      const n = 4 + Math.floor(Math.random() * 4), f = rnd(700, 1400);
+      for (let i = 0; i < n; i++) sweep(nextChorus + i * rnd(0.05, 0.12), f * rnd(0.9, 1.15), f * rnd(1.8, 2.6), rnd(0.25, 0.5), 0.07, rnd(-.6, .6));
+      nextChorus += rnd(2.5, 5);
+    }
+    while (nextWhistler < now + 0.4){ // whistlers: falling tones from lightning
+      sweep(nextWhistler, rnd(3500, 5500), rnd(300, 600), rnd(0.9, 1.6), 0.09, rnd(-.8, .8));
+      nextWhistler += rnd(2, 6);
+    }
+  });
+  return v;
+};
+
+ENGINES.solar_wind = () => {
+  const v = Voice(), N = SOLAR.length, LOOP = 45;
+  const t0 = ctx.currentTime;
+  // drone
+  const drone = v.node(ctx.createGain()), lp = v.node(ctx.createBiquadFilter());
+  lp.type = "lowpass"; lp.Q.value = 0.7; drone.gain.value = 0.28;
+  drone.connect(lp);
+  const dosc = [1, 2, 3, 4, 5].map(k => v.osc("sawtooth", 130 * k, 1 / (k * 1.3), drone));
+  // crackle bus
+  const cb = v.node(ctx.createGain()); cb.gain.value = 0.5; cb.connect(lp);
+  lp.connect(v.out);
+  // ominous cluster (minor 2nd + tritone + minor 9th) for southward Bz
+  const cg = v.node(ctx.createGain()); cg.gain.value = 0; cg.connect(v.out);
+  [1, Math.pow(2, 1 / 12), Math.SQRT2, Math.pow(2, 13 / 12)].forEach((r, i) => v.osc("sine", 55 * r, [.6, .5, .45, .25][i], cg));
+  const trem = v.osc("sine", 0.4, 0.3, cg.gain);
+  const nb = noiseBuffer();
+  function sample(){
+    const x = ((ctx.currentTime - t0) % LOOP) / LOOP * (N - 1), i = Math.floor(x), fr = x - i, a = SOLAR[i], b = SOLAR[Math.min(N - 1, i + 1)];
+    const m = k => a[k] + (b[k] - a[k]) * fr;
+    return {speed: m("speed"), density: m("density"), temperature: m("temperature"), bz: m("bz")};
+  }
+  let lastTick = ctx.currentTime;
+  v.every(60, () => {
+    const now = ctx.currentTime, s = sample();
+    const f0 = quantizePentatonic(logMap(s.speed, [300, 800], [130, 520]));
+    dosc.forEach((d, k) => d.o.frequency.setTargetAtTime(f0 * (k + 1), now, 0.05));
+    const bright = linMap(Math.log10(Math.min(1e6, Math.max(1e4, s.temperature))), [4, 6], [0, 1]);
+    lp.frequency.setTargetAtTime(500 + 5500 * bright * bright, now, 0.1);
+    const south = linMap(-s.bz, [2, 18], [0, 1]);
+    cg.gain.setTargetAtTime(0.5 * Math.pow(south, 1.3), now, 0.2);
+    trem.o.frequency.setTargetAtTime(0.3 + 0.9 * south, now, 0.2);
+    // crackle grains: Poisson in density
+    const dens = Math.min(30, Math.max(1, s.density));
+    const rate = 4 + (Math.log(dens) / Math.log(30)) * 136, loud = linMap(Math.log(dens), [0, Math.log(30)], [.35, 1]);
+    const dt = now - lastTick; lastTick = now;
+    let n = rate * dt; n = Math.floor(n) + (Math.random() < n % 1 ? 1 : 0);
+    for (let k = 0; k < n; k++){
+      const when = now + 0.02 + Math.random() * 0.06, src = ctx.createBufferSource(), g = ctx.createGain(), p = ctx.createStereoPanner();
+      src.buffer = nb; p.pan.value = Math.random() * 2 - 1;
+      g.gain.setValueAtTime(loud * Math.pow(Math.random(), 2), when); g.gain.exponentialRampToValueAtTime(0.0005, when + 0.012);
+      src.connect(g); g.connect(p); p.connect(cb); src.start(when, Math.random() * 1.5, 0.015);
+      src.onended = () => { try{ g.disconnect(); p.disconnect(); }catch(e){} };
+    }
+  });
+  return v;
+};
+
+/* ------------------------------------------------------------------ cards */
+const SOURCES = [
+  {id:"orbits", title:"Orbits", tag:"octave transposition",
+   text:"The eight planets' orbital frequencies (Earth: one per 365 days, about 32 nanohertz) are all raised by the SAME number of octaves and folded into 55-1760 Hz, so every interval between planets is the true physical ratio. Jupiter and Saturn's near 5:2 resonance is a major tenth. Each voice swells once per orbit and pans around the Sun."},
+  {id:"trappist", title:"TRAPPIST-1", tag:"octave transposition",
+   text:"Seven Earth-sized planets orbit the star TRAPPIST-1 with periods of 1.51, 2.42, 4.05, 6.10, 9.21, 12.35 and 18.77 days. Neighbouring pairs sit near small whole-number resonances (8:5, 5:3, 3:2, 3:2, 4:3, 3:2), so shifting them together produces a real exoplanet chord."},
+  {id:"pulsars", title:"Pulsars", tag:"parameter mapping / rhythm",
+   text:"Pulsars are spinning neutron stars whose radio beams sweep past Earth like lighthouses. Vela (89.33 ms), Crab (33.7 ms) and B0329+54 (714.5 ms) are played at their true rates as pulse trains of different pitch; the millisecond pulsar B1937+21 (1.5578 ms) pulses 642 times a second, so its spin rate is itself an audible pitch."},
+  {id:"gravitational", title:"Gravitational-wave chirp", tag:"audification",
+   text:"GW150914, two black holes of about 36 and 29 solar masses merging. The quadrupole formula gives a gravitational-wave frequency rising from 35 Hz to 250 Hz in about 0.2 s, already audible, followed by a ringdown. The slider stretches the event in time without changing its pitch so you can follow the inspiral.",
+   extra:`<label>Time stretch <input id="gwstretch" type="range" min="1" max="30" step="0.5" value="8" aria-label="Gravitational wave time stretch"> <span id="gwval">8x</span></label>`},
+  {id:"black_hole", title:"Perseus black hole", tag:"octave transposition",
+   text:"Chandra saw ripples in the hot gas of the Perseus galaxy cluster, pressure waves driven by its central black hole, about 9.6 million years apart. That frequency (about 3.3e-15 Hz) is raised by 57 octaves, to roughly 475 Hz, to become a slow, evolving drone."},
+  {id:"plasma", title:"Plasma waves", tag:"audification",
+   text:"Spacecraft like Voyager and Juno record electromagnetic waves in magnetised plasma, which happen to lie at audio frequencies. Chorus appears as rising tones in bursts, whistlers (from lightning) as long falling tones because high frequencies travel faster, and hiss as steady broadband noise. This player synthesises each of those signatures."},
+  {id:"solar_wind", title:"Solar wind", tag:"parameter mapping",
+   text:"A built-in sample of a coronal mass ejection hitting the L1 point (not live data): speed (380 to 650+ km/s) sets the pitch of a pentatonic drone, density the rate and loudness of crackling grains, temperature the brightness (filter cutoff), and southward Bz (down to -19 nT) fades in a dissonant minor-second and tritone layer that signals a geomagnetic storm."}
+];
+
+const cardsEl = document.getElementById("cards"), statusEl = document.getElementById("status");
+SOURCES.forEach(s => {
+  const d = document.createElement("section");
+  d.className = "card"; d.id = "card-" + s.id;
+  d.innerHTML = `<span class="tag">${s.tag}</span><h2>${s.title}</h2><p>${s.text}</p>
+    <div class="row"><button data-id="${s.id}" aria-pressed="false">Play</button>${s.extra || ""}</div>`;
+  cardsEl.appendChild(d);
+});
+document.getElementById("gwstretch").addEventListener("input", e => document.getElementById("gwval").textContent = e.target.value + "x");
+
+function setCardState(id, on){
+  const c = document.getElementById("card-" + id), b = c.querySelector("button[data-id]");
+  c.classList.toggle("playing", on); b.setAttribute("aria-pressed", on); b.textContent = on ? "Stop" : "Play";
+}
+function startSource(id){
+  ensureCtx();
+  if (active.has(id)) return;
+  active.set(id, ENGINES[id]());
+  setCardState(id, true);
+}
+function stopSource(id){
+  const v = active.get(id); if (!v) return;
+  v.stop(); active.delete(id); setCardState(id, false);
+}
+function stopAll(){
+  endTour();
+  [...active.keys()].forEach(stopSource);
+  stopFile();
+  statusEl.textContent = "";
+}
+cardsEl.addEventListener("click", e => {
+  const b = e.target.closest("button[data-id]"); if (!b) return;
+  endTour();
+  active.has(b.dataset.id) ? stopSource(b.dataset.id) : startSource(b.dataset.id);
+});
+
+/* Play-all tour: the sources in turn, each 24 s, overlapping by a crossfade. */
+const TOUR_ORDER = ["orbits", "trappist", "solar_wind", "plasma", "pulsars", "black_hole", "gravitational"], SEG = 24000;
+let tourIdx = 0;
+const tourBtn = document.getElementById("playall");
+function tourStep(){
+  const id = TOUR_ORDER[tourIdx % TOUR_ORDER.length], prev = TOUR_ORDER[(tourIdx - 1 + TOUR_ORDER.length) % TOUR_ORDER.length];
+  startSource(id);
+  statusEl.textContent = "Tour: " + SOURCES.find(s => s.id === id).title;
+  if (tourIdx > 0) setTimeout(() => { if (tourTimer) stopSource(prev); }, 1500);
+  tourIdx++;
+}
+function endTour(){ if (tourTimer){ clearInterval(tourTimer); tourTimer = null; } tourBtn.setAttribute("aria-pressed", "false"); }
+tourBtn.addEventListener("click", () => {
+  if (tourTimer) { stopAll(); return; }
+  ensureCtx(); stopAll();
+  tourBtn.setAttribute("aria-pressed", "true"); tourIdx = 0;
+  tourTimer = setInterval(tourStep, SEG); tourStep();
+});
+document.getElementById("stopall").addEventListener("click", stopAll);
+
+/* --------------------------------------------------- volume & file player */
+document.getElementById("vol").addEventListener("input", e => { if (master) master.gain.setTargetAtTime(+e.target.value, ctx.currentTime, 0.03); });
+const fileStopBtn = document.getElementById("filestop");
+function stopFile(){ if (fileSrc){ try{ fileSrc.stop(); fileSrc.disconnect(); }catch(e){} fileSrc = null; } fileStopBtn.hidden = true; }
+fileStopBtn.addEventListener("click", stopFile);
+document.getElementById("file").addEventListener("change", async e => {
+  const f = e.target.files[0]; if (!f) return;
+  ensureCtx(); stopFile();
+  try {
+    statusEl.textContent = "Decoding " + f.name + "...";
+    const buf = await ctx.decodeAudioData(await f.arrayBuffer());
+    fileSrc = ctx.createBufferSource(); fileSrc.buffer = buf; fileSrc.connect(master); fileSrc.start();
+    fileSrc.onended = () => { fileSrc = null; fileStopBtn.hidden = true; statusEl.textContent = ""; };
+    fileStopBtn.hidden = false;
+    statusEl.textContent = "Playing " + f.name + " (" + buf.duration.toFixed(0) + " s)";
+  } catch (err) { statusEl.textContent = "Could not decode that file."; }
+  e.target.value = "";
+});
+
+/* ------------------------------------------------------------- visualiser */
+const spec = document.getElementById("spec"), sctx = spec.getContext("2d");
+let rowMap = null, colors = null;
+function sizeSpec(){
+  const r = spec.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+  spec.width = Math.max(10, Math.round(r.width * dpr)); spec.height = Math.round(220 * dpr);
+  sctx.fillStyle = "#02030a"; sctx.fillRect(0, 0, spec.width, spec.height); rowMap = null;
+}
+function palette(){
+  colors = [];
+  const stops = [[2,3,10],[30,20,90],[120,40,160],[240,100,90],[255,220,140]];
+  for (let i = 0; i < 256; i++){
+    const u = i / 255 * (stops.length - 1), k = Math.min(stops.length - 2, Math.floor(u)), f = u - k;
+    colors.push(stops[k].map((c, j) => Math.round(c + (stops[k + 1][j] - c) * f)));
+  }
+}
+palette(); sizeSpec(); window.addEventListener("resize", sizeSpec);
+const spBins = new Uint8Array(2048);
+function drawSpec(){
+  requestAnimationFrame(drawSpec);
+  if (!analyser) return;
+  const w = spec.width, h = spec.height, step = Math.max(1, Math.round(w / 700));
+  if (!rowMap){
+    const nyq = ctx.sampleRate / 2, bins = analyser.frequencyBinCount; rowMap = new Int32Array(h);
+    for (let y = 0; y < h; y++){
+      const fr = 40 * Math.pow(10000 / 40, 1 - y / (h - 1));
+      rowMap[y] = Math.min(bins - 1, Math.round(fr / nyq * bins));
+    }
+  }
+  analyser.getByteFrequencyData(spBins);
+  sctx.drawImage(spec, -step, 0);
+  const img = sctx.createImageData(step, h);
+  for (let y = 0; y < h; y++){
+    const c = colors[spBins[rowMap[y]]];
+    for (let x = 0; x < step; x++){ const o = (y * step + x) * 4; img.data[o] = c[0]; img.data[o + 1] = c[1]; img.data[o + 2] = c[2]; img.data[o + 3] = 255; }
+  }
+  sctx.putImageData(img, w - step, 0);
+}
+requestAnimationFrame(drawSpec);
+
+/* ---------------------------------------------------------------- starfield */
+(function(){
+  const cv = document.getElementById("stars"), c = cv.getContext("2d");
+  let stars = [], W = 0, H = 0;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function resize(){
+    W = cv.width = innerWidth; H = cv.height = innerHeight;
+    stars = Array.from({length: Math.round(W * H / 4500)}, (_, i) => ({x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.2 + .2, p: Math.random() * 6.28, s: .5 + Math.random()}));
+  }
+  function frame(t){
+    c.fillStyle = "#05060f"; c.fillRect(0, 0, W, H);
+    const g = c.createRadialGradient(W * .75, H * .1, 0, W * .75, H * .1, Math.max(W, H) * .7);
+    g.addColorStop(0, "rgba(70,50,150,.28)"); g.addColorStop(1, "rgba(5,6,15,0)");
+    c.fillStyle = g; c.fillRect(0, 0, W, H);
+    for (const s of stars){
+      c.globalAlpha = reduce ? .7 : .35 + .65 * (0.5 + 0.5 * Math.sin(t / 1000 * s.s + s.p));
+      c.fillStyle = "#dfe6ff"; c.beginPath(); c.arc(s.x, s.y, s.r, 0, 6.283); c.fill();
+    }
+    c.globalAlpha = 1;
+    if (!reduce) requestAnimationFrame(frame);
+  }
+  resize(); addEventListener("resize", () => { resize(); if (reduce) frame(0); });
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

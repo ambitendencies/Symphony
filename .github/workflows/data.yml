@@ -1,0 +1,53 @@
+name: Refresh archival data
+
+on:
+  schedule:
+    - cron: "17 4 * * 1" # weekly, Monday 04:17 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pipeline dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pytest psrqpy lightkurve
+
+      - name: Offline pipeline tests
+        run: python -m pytest -q tests/test_pipeline.py
+
+      - name: Rebuild archives from upstream (falls back per source)
+        run: python -m pipeline.build_all
+
+      - name: Validate with the app's parsers
+        working-directory: app
+        run: |
+          npm ci
+          npx vitest run tests/voices.test.ts
+
+      - name: Commit changes
+        run: |
+          if git diff --quiet -- app/public/data; then
+            echo "No data changes."
+            exit 0
+          fi
+          git config user.name "cosmic-radio-bot"
+          git config user.email "cosmic-radio-bot@users.noreply.github.com"
+          git add app/public/data
+          git commit -m "data: weekly archive refresh"
+          git push

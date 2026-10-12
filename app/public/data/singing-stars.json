@@ -1,0 +1,306 @@
+{
+ "version": 1,
+ "voice": "singing-stars",
+ "kind": "archive",
+ "source": "Published asteroseismic parameters (Kepler; BiSON for the Sun), embedded in pipeline/asteroseismology.py",
+ "updated": "2026-10-11T19:35:14Z",
+ "method": "Sun: measured BiSON frequencies. Others: asymptotic relation ν(n,l) ≈ Δν(n + l/2 + ε) − δν0l from published νmax, Δν (Tassoul 1980).",
+ "url": "https://archive.stsci.edu/missions-and-data/kepler",
+ "stars": [
+  {
+   "name": "the Sun",
+   "kic": null,
+   "kind": "main sequence",
+   "numax": 3090.0,
+   "dnu": 135.1,
+   "eps": 1.46,
+   "d02": 9.0,
+   "measuredModes": true,
+   "modes": [
+    {
+     "l": 0,
+     "n": 20,
+     "freq": 2899.1
+    },
+    {
+     "l": 1,
+     "n": 20,
+     "freq": 2963.3
+    },
+    {
+     "l": 2,
+     "n": 20,
+     "freq": 3024.7
+    },
+    {
+     "l": 0,
+     "n": 21,
+     "freq": 3033.8
+    },
+    {
+     "l": 1,
+     "n": 21,
+     "freq": 3098.2
+    },
+    {
+     "l": 2,
+     "n": 21,
+     "freq": 3159.0
+    },
+    {
+     "l": 0,
+     "n": 22,
+     "freq": 3168.6
+    }
+   ],
+   "reference": "Huber et al. 2011, ApJ 743, 143 (solar νmax, Δν); Broomhall et al. 2009, MNRAS 396, L100 (BiSON modes)",
+   "note": "Our own star, heard as a star: its whole surface rises and falls by a few metres per second."
+  },
+  {
+   "name": "16 Cygni A",
+   "kic": 12069424,
+   "kind": "main sequence",
+   "numax": 2188.0,
+   "dnu": 103.78,
+   "eps": 1.47,
+   "d02": 5.8,
+   "measuredModes": false,
+   "modes": [
+    {
+     "l": 1,
+     "n": 18,
+     "freq": 2070.59
+    },
+    {
+     "l": 2,
+     "n": 18,
+     "freq": 2118.58
+    },
+    {
+     "l": 0,
+     "n": 19,
+     "freq": 2124.38
+    },
+    {
+     "l": 1,
+     "n": 19,
+     "freq": 2174.37
+    },
+    {
+     "l": 2,
+     "n": 19,
+     "freq": 2222.36
+    },
+    {
+     "l": 0,
+     "n": 20,
+     "freq": 2228.16
+    },
+    {
+     "l": 1,
+     "n": 20,
+     "freq": 2278.15
+    },
+    {
+     "l": 2,
+     "n": 20,
+     "freq": 2326.14
+    },
+    {
+     "l": 0,
+     "n": 21,
+     "freq": 2331.94
+    }
+   ],
+   "reference": "Metcalfe et al. 2012, ApJ 748, L10; Davies et al. 2015, MNRAS 446, 2959",
+   "note": "A Sun-like star 69 light-years away, one of the brightest stars Kepler watched."
+  },
+  {
+   "name": "16 Cygni B",
+   "kic": 12069449,
+   "kind": "main sequence",
+   "numax": 2561.0,
+   "dnu": 117.36,
+   "eps": 1.43,
+   "d02": 6.6,
+   "measuredModes": false,
+   "modes": [
+    {
+     "l": 2,
+     "n": 18,
+     "freq": 2391.06
+    },
+    {
+     "l": 0,
+     "n": 19,
+     "freq": 2397.66
+    },
+    {
+     "l": 1,
+     "n": 19,
+     "freq": 2454.14
+    },
+    {
+     "l": 2,
+     "n": 19,
+     "freq": 2508.42
+    },
+    {
+     "l": 0,
+     "n": 20,
+     "freq": 2515.02
+    },
+    {
+     "l": 1,
+     "n": 20,
+     "freq": 2571.5
+    },
+    {
+     "l": 2,
+     "n": 20,
+     "freq": 2625.78
+    },
+    {
+     "l": 0,
+     "n": 21,
+     "freq": 2632.38
+    },
+    {
+     "l": 1,
+     "n": 21,
+     "freq": 2688.86
+    },
+    {
+     "l": 2,
+     "n": 21,
+     "freq": 2743.14
+    }
+   ],
+   "reference": "Metcalfe et al. 2012, ApJ 748, L10; Davies et al. 2015, MNRAS 446, 2959",
+   "note": "16 Cyg A's twin, with a giant planet on an eccentric orbit."
+  },
+  {
+   "name": "Kepler-444",
+   "kic": 6278762,
+   "kind": "main sequence",
+   "numax": 4538.0,
+   "dnu": 179.64,
+   "eps": 1.42,
+   "d02": 11.0,
+   "measuredModes": false,
+   "modes": [
+    {
+     "l": 1,
+     "n": 22,
+     "freq": 4293.39
+    },
+    {
+     "l": 2,
+     "n": 22,
+     "freq": 4375.81
+    },
+    {
+     "l": 0,
+     "n": 23,
+     "freq": 4386.81
+    },
+    {
+     "l": 1,
+     "n": 23,
+     "freq": 4473.03
+    },
+    {
+     "l": 2,
+     "n": 23,
+     "freq": 4555.45
+    },
+    {
+     "l": 0,
+     "n": 24,
+     "freq": 4566.45
+    },
+    {
+     "l": 1,
+     "n": 24,
+     "freq": 4652.67
+    },
+    {
+     "l": 2,
+     "n": 24,
+     "freq": 4735.09
+    },
+    {
+     "l": 0,
+     "n": 25,
+     "freq": 4746.09
+    }
+   ],
+   "reference": "Campante et al. 2015, ApJ 799, 170",
+   "note": "An 11-billion-year-old star with five small planets — the oldest planetary system known when found."
+  },
+  {
+   "name": "Kepler-91",
+   "kic": 8219268,
+   "kind": "red giant",
+   "numax": 109.4,
+   "dnu": 9.48,
+   "eps": 1.218,
+   "d02": 0.936,
+   "measuredModes": false,
+   "modes": [
+    {
+     "l": 2,
+     "n": 8,
+     "freq": 95.93
+    },
+    {
+     "l": 0,
+     "n": 9,
+     "freq": 96.87
+    },
+    {
+     "l": 1,
+     "n": 9,
+     "freq": 102.16
+    },
+    {
+     "l": 2,
+     "n": 9,
+     "freq": 105.41
+    },
+    {
+     "l": 0,
+     "n": 10,
+     "freq": 106.35
+    },
+    {
+     "l": 1,
+     "n": 10,
+     "freq": 111.64
+    },
+    {
+     "l": 2,
+     "n": 10,
+     "freq": 114.89
+    },
+    {
+     "l": 0,
+     "n": 11,
+     "freq": 115.83
+    },
+    {
+     "l": 1,
+     "n": 11,
+     "freq": 121.12
+    },
+    {
+     "l": 2,
+     "n": 11,
+     "freq": 124.37
+    }
+   ],
+   "reference": "Lillo-Box et al. 2014, A&A 562, A109 (νmax, Δν); Mosser et al. 2011, A&A 525, L9 (universal pattern)",
+   "note": "A swollen red giant that is slowly swallowing its close-in planet; it rings once every 2.5 hours."
+  }
+ ]
+}

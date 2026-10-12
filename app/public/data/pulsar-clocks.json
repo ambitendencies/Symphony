@@ -1,0 +1,83 @@
+{
+ "version": 1,
+ "voice": "pulsar-clocks",
+ "kind": "archive",
+ "source": "ATNF Pulsar Catalogue (Manchester et al. 2005), published values embedded in pipeline/pulsars.py",
+ "updated": "2026-10-11T19:37:01Z",
+ "citation": "Manchester, R. N., Hobbs, G. B., Teoh, A. & Hobbs, M. 2005, AJ 129, 1993",
+ "url": "https://www.atnf.csiro.au/research/pulsar/psrcat/",
+ "pulsars": [
+  {
+   "name": "Vela pulsar",
+   "bname": "B0833-45",
+   "jname": "J0835-4510",
+   "p0": 0.089328385024,
+   "p1": 1.25008e-13,
+   "dm": 67.97,
+   "dist_kpc": 0.28,
+   "ra_deg": 128.8361,
+   "dec_deg": -45.1764,
+   "note": "Born in a supernova about 11,000 years ago; glitches (spins up suddenly) every few years."
+  },
+  {
+   "name": "Crab pulsar",
+   "bname": "B0531+21",
+   "jname": "J0534+2200",
+   "p0": 0.0333924123,
+   "p1": 4.20972e-13,
+   "dm": 56.77118,
+   "dist_kpc": 2.0,
+   "ra_deg": 83.6332,
+   "dec_deg": 22.0145,
+   "note": "The remnant of the supernova Chinese astronomers saw in 1054 AD."
+  },
+  {
+   "name": "PSR B0329+54",
+   "bname": "B0329+54",
+   "jname": "J0332+5434",
+   "p0": 0.714519699726,
+   "p1": 2.04826e-15,
+   "dm": 26.7641,
+   "dist_kpc": 1.0,
+   "ra_deg": 53.2474,
+   "dec_deg": 54.5787,
+   "note": "The brightest pulsar in the northern sky."
+  },
+  {
+   "name": "PSR J0437−4715",
+   "bname": "",
+   "jname": "J0437-4715",
+   "p0": 0.005757451936712637,
+   "p1": 5.729e-20,
+   "dm": 2.64476,
+   "dist_kpc": 0.157,
+   "ra_deg": 69.3162,
+   "dec_deg": -47.2525,
+   "note": "The nearest millisecond pulsar, spun up by a white-dwarf companion; one of the steadiest clocks known."
+  },
+  {
+   "name": "PSR B1937+21",
+   "bname": "B1937+21",
+   "jname": "J1939+2134",
+   "p0": 0.0015578064688,
+   "p1": 1.051193e-19,
+   "dm": 71.0227,
+   "dist_kpc": 2.9,
+   "ra_deg": 294.9106,
+   "dec_deg": 21.5831,
+   "note": "The first millisecond pulsar ever found (1982): 642 turns a second."
+  },
+  {
+   "name": "CP 1919, the first pulsar",
+   "bname": "B1919+21",
+   "jname": "J1921+2153",
+   "p0": 1.3373021601895,
+   "p1": 1.34809e-15,
+   "dm": 12.4437,
+   "dist_kpc": 0.3,
+   "ra_deg": 290.4366,
+   "dec_deg": 21.8838,
+   "note": "The first pulsar ever discovered, by Jocelyn Bell Burnell in 1967."
+  }
+ ]
+}

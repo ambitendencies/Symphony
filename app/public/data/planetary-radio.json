@@ -1,0 +1,49 @@
+{
+ "version": 1,
+ "voice": "planetary-radio",
+ "kind": "archive",
+ "updated": "2026-10-12T00:00:00Z",
+ "source": "Published plasma-wave parameters: Van Allen Probes EMFISIS, Juno Waves, Cassini RPWS, Voyager 1 PWS",
+ "worlds": [
+  {
+   "name": "Earth",
+   "kind": "chorus",
+   "mission": "Van Allen Probes (EMFISIS)",
+   "lowHz": 700,
+   "highHz": 3500,
+   "rotationHours": 23.934,
+   "fact": "Dawn chorus: rising whistles at 0.1–0.5 of the electron cyclotron frequency, about 7 kHz at four Earth radii",
+   "reference": "Kletzing et al. 2013; Santolík et al. 2003"
+  },
+  {
+   "name": "Jupiter",
+   "kind": "whistler",
+   "mission": "Juno (Waves)",
+   "lowHz": 300,
+   "highHz": 9000,
+   "rotationHours": 9.925,
+   "fact": "Lightning whistlers: tones that fall as low frequencies arrive later, measured by Juno near Jupiter's poles",
+   "reference": "Kolmašová et al. 2018, Nature Astronomy"
+  },
+  {
+   "name": "Saturn",
+   "kind": "kilometric",
+   "mission": "Cassini (RPWS)",
+   "lowHz": 100000,
+   "highHz": 400000,
+   "rotationHours": 10.66,
+   "fact": "Saturn kilometric radiation, 100–400 kHz, pulsing with a period of about 10.7 hours",
+   "reference": "Gurnett et al. 2005; Lamy 2017"
+  },
+  {
+   "name": "Voyager 1",
+   "kind": "plasma-line",
+   "mission": "Voyager 1 (PWS)",
+   "lowHz": 2400,
+   "highHz": 2700,
+   "rotationHours": 0,
+   "fact": "Interstellar plasma oscillations near 2.6 kHz, implying about 0.08 electrons per cm³ beyond the heliopause",
+   "reference": "Gurnett et al. 2013, Science 341, 1489"
+  }
+ ]
+}

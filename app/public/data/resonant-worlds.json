@@ -1,0 +1,40 @@
+{
+ "version": 1,
+ "voice": "resonant-worlds",
+ "kind": "archive",
+ "updated": "2026-10-12T00:00:00Z",
+ "source": "Agol et al. 2021, Planetary Science Journal 2, 1 (TRAPPIST-1 transit timing)",
+ "system": "TRAPPIST-1",
+ "distanceLy": 40.7,
+ "star": "an ultracool red dwarf (M8V)",
+ "planets": [
+  {
+   "name": "b",
+   "periodDays": 1.51087
+  },
+  {
+   "name": "c",
+   "periodDays": 2.42182
+  },
+  {
+   "name": "d",
+   "periodDays": 4.04961
+  },
+  {
+   "name": "e",
+   "periodDays": 6.09965
+  },
+  {
+   "name": "f",
+   "periodDays": 9.20669
+  },
+  {
+   "name": "g",
+   "periodDays": 12.35294
+  },
+  {
+   "name": "h",
+   "periodDays": 18.76712
+  }
+ ]
+}

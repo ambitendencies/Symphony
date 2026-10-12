@@ -1,84 +1,77 @@
-# Symphony — Build Plan
+# Cosmic Radio — Build Plan (v2, from the Oct 11 2026 PRD)
 
-**Goal:** a sonification engine that lets you *hear* space. Space is (almost)
-silent to human ears — there's no air to carry pressure waves — but it is full
-of oscillations: orbits, pulsar beams, plasma waves, magnetic fields, merging
-black holes, pressure waves in galaxy-cluster gas. Almost all of them are far
-outside 20 Hz–20 kHz. Symphony takes those real physical signals, shifts them
-into the audible range with transparent, documented mappings, and mixes them
-into a multi-movement "symphony".
+The PRD changes the product from an offline renderer (Symphony v0.1, a Python
+CLI) into **Cosmic Radio**: a public, browser-only "cosmic receiver" whose
+stations layer several real space-science voices into one calm, in-tune,
+evolving piece, with a teaching layer and live data.
 
-## How you "hear" space — the three techniques
+The Python package stays. It becomes the **archival data pipeline** and the
+reference physics (its mappings and tests carry over).
 
-| Technique | What it does | Used for |
+## Decisions and deviations from the PRD
+
+| PRD says | Plan | Why |
 |---|---|---|
-| **Audification** | Play a measured waveform directly, time-compressed/stretched so its frequencies land in hearing range | Plasma waves (Voyager/Juno), gravitational-wave chirps |
-| **Octave transposition** | Multiply a frequency by 2ⁿ so it keeps its pitch class and ratios | Planet orbits, Perseus black-hole pressure wave (57 octaves below middle C) |
-| **Parameter mapping** | Map a data value (speed, density, period) onto a musical parameter (pitch, loudness, timbre, rhythm) | Solar wind, pulsar timing, exoplanet resonances |
-
-The key design rule: **ratios are preserved.** If two orbits are in a 3:2
-resonance, you hear a perfect fifth. The music is the physics.
+| SvelteKit (or Next.js) | **Svelte 5 + Vite + TypeScript**, a single static page | One screen, no routing, so Kit adds weight and nothing else; deep links use the query string; deploys as static files to Cloudflare Pages exactly the same |
+| Web Audio + Tone.js + AudioWorklets | **Plain Web Audio** with a small look-ahead scheduler, plus an AudioWorklet-free resampler (data is pre-resampled by the pipeline) | Keeps the bundle well under 300 KB gz; the engine needs only a clock, envelopes and buses; can adopt Tone.js later if needed |
+| WebGL starfield (Three.js/regl) | **Canvas 2D** starfield first, with WebGL as a later upgrade | PRD allows a Canvas fallback; cheaper and safer for 60 fps on mid-range phones |
+| Live NOAA via Cloudflare Worker cron | Worker written (`worker/`) and tested locally; the app also reads a bundled archival snapshot | NOAA/GWOSC/MAST/ATNF are unreachable from the dev sandbox, so live paths are written to spec and verified with recorded fixtures only |
+| Kepler/TESS via lightkurve, GWOSC via gwpy | `pipeline/` scripts (for GitHub Actions) that fetch real data; the repo ships **published values** (mode frequencies, masses, periods) with citations | Same sandbox limitation. Every voice says which it is |
 
 ## Architecture
 
 ```
-symphony/
-  audio.py        core: sample rate, stereo buffers, normalise, fades, pan, mix, WAV I/O
-  synth.py        instruments: oscillators, ADSR, additive/FM tones, noise, filters, reverb
-  mapping.py      science→sound: octave transposition, audification, range/scale mapping
-  score.py        Track / Movement / Symphony: arrange & render sources into a piece
-  sources/
-    base.py       Source interface + registry (the plug-in contract)
-    orbits.py           Solar-system orbits, octave-shifted ("music of the spheres")
-    trappist.py         TRAPPIST-1 resonant chain — a real exoplanet chord
-    pulsars.py          Real pulsar periods as rhythm (Vela, Crab, B0329+54, J0437…)
-    gravitational.py    GW150914 inspiral chirp (post-Newtonian model)
-    black_hole.py       Perseus cluster pressure wave, transposed up 57–58 octaves
-    plasma.py           Jupiter/Voyager-style plasma waves: chorus, whistlers, hiss
-    solar_wind.py       Solar wind speed/density → drone (offline sample + NOAA live feed)
-  live.py         optional live data fetch (NOAA SWPC real-time solar wind)
-  cli.py          `symphony list | render | info`
-web/
-  index.html      browser player: Web Audio synthesis + visualiser, same mappings
-tests/            unit tests for core + every source
+app/                       the web app (static build → Cloudflare Pages)
+  src/lib/engine/
+    types.ts               contracts: Role, Mood, VoiceDefinition, VoiceInstance, StationConfig, DataSnapshot
+    theory.ts              harmony: scales (incl. just intonation), chord progression, role registers, pitch snapping
+    smoothing.ts           data easing (2–10 s), outlier clamping
+    clock.ts               master clock (50–70 BPM), bar/beat maths
+    arrangement.ts         movements → which voices play which role, on bar boundaries
+    master.ts              master bus: 30 Hz HPF, 8 kHz shelf, hall reverb, compressor, limiter, hard ceiling
+    engine.ts              Engine: context, role buses, ducking, tuning + static + crossfade, mute/solo/level, sleep timer, state for the UI
+    deeplink.ts            station / mood / blend / data time ⇄ URL
+  src/lib/voices/          one file per cosmic voice (registry in index.ts)
+  src/lib/stations/        station arrangement configs (Solar Drift, Neutron Focus, Gravity Hymn, Full Cosmos)
+  src/lib/data/            feeds: live fetch + staleness + archival fallback
+  src/lib/ui/              Svelte components: Arrival, Receiver dial, Hearing panel, Orchestra, Mood & timer, Starfield
+  public/data/             archival station data (JSON) produced by the pipeline
+  tests/                   vitest: theory, smoothing, arrangement, deep links, configs
+  e2e/                     headless Chromium: page smoke test + OfflineAudioContext loudness/peak checks per station
+worker/                    Cloudflare Worker: cron polls NOAA SWPC every 2 min → R2/KV JSON with schema checks
+pipeline/                  Python jobs (GitHub Actions): build archival JSON for pulsars, singing stars, GW chirps
+symphony/                  v0.1 Python engine (reference physics; reused by pipeline/)
 ```
 
-### The plug-in contract (lets work proceed in parallel)
+## P0 coverage
 
-```python
-class Source(ABC):
-    name: str            # registry key, e.g. "pulsars"
-    title: str           # human title
-    science: str         # what the physics is and how it's mapped to sound
-    def render(self, duration: float, sr: int = SAMPLE_RATE) -> np.ndarray  # (N, 2) float32 in [-1, 1]
-
-@register
-class Pulsars(Source): ...
-```
-
-Every source must: be deterministic (seeded RNG), return stereo float32 of
-exactly `round(duration*sr)` samples, be peak-normalised ≤ 1, contain no NaNs,
-and explain its mapping in `science`.
+| PRD | Where |
+|---|---|
+| F1 one-tap play | `ui/Arrival` → `engine.start()` |
+| F2 dial, static, 2–4 s crossfade | `ui/Receiver`, `engine.tune()` |
+| F3 ≥3 voices, one key & tempo | station configs + `theory` + `clock` |
+| F4 evolving arrangements on musical boundaries | `arrangement.ts` |
+| F5 orchestra view mute/solo/level | `ui/Orchestra`, `engine.setVoiceMix()` |
+| F6 live refresh without glitches | `data/feeds` + `smoothing` (values glide) |
+| F7 archival fallback with label | `data/feeds` (`fallback` flag → UI badge) |
+| F8 "What am I hearing?" | `ui/HearingPanel` + `VoiceInstance.readout()` + info cards |
+| F9 moods | `theory.MOODS` |
+| F10 sleep timer, voices drop out over 5 min | `engine.setSleepTimer()` |
+| F11 volume + hard ceiling | `master.ts` (user gain is pre-limiter, ceiling −1 dBFS) |
+| F12 credit + technique label | `VoiceDefinition.credit/technique` |
+| F13 deep links | `deeplink.ts` |
 
 ## Phases & ownership
 
 | Phase | Work | Built by |
 |---|---|---|
-| 0 | This plan, repo scaffold, packaging | Opus 5.5 (main agent) |
-| 1 | Core engine: `audio`, `synth`, `mapping`, `score`, `sources/base`, CLI, tests, plus one reference source (`orbits`) | Opus 5.5 (main agent) |
-| 2 | Physics sources: `trappist`, `pulsars`, `gravitational`, `black_hole`, `plasma` | Sub-agent — **Opus** |
-| 3 | `solar_wind` + `live` (NOAA feed w/ offline fallback), browser player `web/`, README | Sub-agent — **Sonnet** |
-| 4 | Integration: full symphony score, render, test run, review of sub-agent code | Opus 5.5 (main agent) |
+| A | This plan; app scaffold; engine core (types, theory, smoothing, clock, arrangement, master, engine, deeplink); Solar Wind reference voice; station configs; unit tests | Opus 5.5 (main) |
+| B | Voices: Pulsar Clocks, Singing Stars, Black Hole Chirps; archival data files; `pipeline/`; `worker/` | Sub-agent — **Opus** |
+| C | UI: arrival, receiver dial with tuning static, hearing panel, orchestra view, mood & sleep timer, starfield, ambient mode, accessibility, deep links wiring, PWA manifest | Sub-agent — **Sonnet** |
+| D | Integration, audio-safety e2e (peak/loudness per station via OfflineAudioContext), bundle-size check, review | Opus 5.5 (main) |
 
-Phases 2 and 3 run in parallel; they only touch their own files and depend on
-the Phase 1 contract.
-
-## Verification
-- `pytest` — shape, dtype, range, determinism, no-NaN for every registered source.
-- Spectral checks — e.g. the orbits source's dominant frequency ratios match orbital period ratios; the GW chirp's frequency rises monotonically.
-- `symphony render --out symphony.wav` produces the full piece end-to-end.
-
-## Stretch ideas
-Real data ingestion (NASA CDAWeb CDF files for Juno Waves / Voyager PWS, LIGO
-open-data strain via GWOSC), spatial audio (HRTF) placing each body where it
-sits in the sky, a real-time mode driven by live spacecraft telemetry.
+## Gates (from the PRD: prove the sound first)
+1. Every station renders 60 s offline with peak ≤ −1 dBFS, no NaNs, and station loudness within ±3 dB of each other.
+2. Unit tests and type-check pass; the production bundle is < 300 KB gzipped.
+3. The page loads with no console errors on desktop and mobile widths, and sound starts on the first tap.
+4. **Not automatable here:** the PRD's 30-minute listening test with five outside listeners, real-device iOS/Android testing, live-feed verification against real NOAA data.

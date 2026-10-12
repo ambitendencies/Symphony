@@ -1,0 +1,49 @@
+{
+ "version": 1,
+ "voice": "collapsing-stars",
+ "kind": "archive",
+ "updated": "2026-10-12T00:00:00Z",
+ "source": "Published discovery and peak dates; light curves modelled from standard Type Ia and Type II templates",
+ "supernovae": [
+  {
+   "name": "SN 2011fe",
+   "type": "Ia",
+   "galaxy": "the Pinwheel Galaxy (M101)",
+   "distanceLy": 21000000,
+   "riseDays": 18,
+   "declineDays": 40,
+   "plateauDays": 0,
+   "what": "a white dwarf exploded"
+  },
+  {
+   "name": "SN 2014J",
+   "type": "Ia",
+   "galaxy": "the Cigar Galaxy (M82)",
+   "distanceLy": 11400000,
+   "riseDays": 17,
+   "declineDays": 40,
+   "plateauDays": 0,
+   "what": "a white dwarf exploded"
+  },
+  {
+   "name": "SN 1987A",
+   "type": "II-pec",
+   "galaxy": "the Large Magellanic Cloud",
+   "distanceLy": 168000,
+   "riseDays": 84,
+   "declineDays": 110,
+   "plateauDays": 0,
+   "what": "a blue supergiant collapsed"
+  },
+  {
+   "name": "SN 2023ixf",
+   "type": "II",
+   "galaxy": "the Pinwheel Galaxy (M101)",
+   "distanceLy": 21000000,
+   "riseDays": 5,
+   "declineDays": 60,
+   "plateauDays": 75,
+   "what": "a red supergiant collapsed"
+  }
+ ]
+}

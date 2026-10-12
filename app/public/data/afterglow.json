@@ -1,0 +1,31 @@
+{
+ "version": 1,
+ "voice": "afterglow",
+ "kind": "archive",
+ "updated": "2026-10-12T00:00:00Z",
+ "source": "Planck 2018 results VI (A&A 641, A6): acoustic peaks of the CMB temperature power spectrum, read from the best-fit ΛCDM spectrum (approximate)",
+ "temperatureK": 2.7255,
+ "ageAtReleaseYears": 380000,
+ "peaks": [
+  {
+   "l": 220,
+   "Dl": 5750
+  },
+  {
+   "l": 537,
+   "Dl": 2600
+  },
+  {
+   "l": 813,
+   "Dl": 2530
+  },
+  {
+   "l": 1120,
+   "Dl": 1250
+  },
+  {
+   "l": 1444,
+   "Dl": 800
+  }
+ ]
+}

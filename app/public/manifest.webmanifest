@@ -1,0 +1,12 @@
+{
+  "name": "Cosmic Radio",
+  "short_name": "Cosmic Radio",
+  "description": "Real space-science data turned into calm, layered music you tune like a radio.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0c10",
+  "theme_color": "#0a0c10",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

@@ -1,0 +1,45 @@
+{
+ "version": 1,
+ "voice": "fast-radio-bursts",
+ "kind": "archive",
+ "updated": "2026-10-12T00:00:00Z",
+ "source": "CHIME/FRB and published localisations (CHIME/FRB 2020 Nature 587; Chatterjee 2017; Marcote 2020; Kirsten 2022; Ryder 2023)",
+ "bursts": [
+  {
+   "name": "FRB 20200428A",
+   "dm": 332.7,
+   "host": "the magnetar SGR 1935+2154 in our own Milky Way",
+   "distanceLy": 30000
+  },
+  {
+   "name": "FRB 20200120E",
+   "dm": 87.8,
+   "host": "a globular cluster in the galaxy M81",
+   "distanceLy": 12000000
+  },
+  {
+   "name": "FRB 20180916B",
+   "dm": 348.8,
+   "host": "a spiral galaxy, repeating on a 16.35-day cycle",
+   "distanceLy": 500000000
+  },
+  {
+   "name": "FRB 20121102A",
+   "dm": 557.0,
+   "host": "a dwarf galaxy, the first repeating burst found",
+   "distanceLy": 3000000000
+  },
+  {
+   "name": "FRB 20190520B",
+   "dm": 1205.0,
+   "host": "a dwarf galaxy with dense surrounding plasma",
+   "distanceLy": 3000000000
+  },
+  {
+   "name": "FRB 20220610A",
+   "dm": 1458.0,
+   "host": "a group of merging galaxies",
+   "distanceLy": 8000000000
+  }
+ ]
+}

@@ -1,0 +1,430 @@
+{
+ "version": 1,
+ "voice": "solar-wind",
+ "kind": "archive",
+ "source": "Modelled CME arrival at L1 (illustrative archival loop, not a recorded event)",
+ "spacecraft": "DSCOVR / ACE (L1)",
+ "updated": "2026-10-03T11:00:00Z",
+ "series": [
+  {
+   "time": "2026-10-01T00:00:00Z",
+   "speed": 385.0,
+   "density": 5.5,
+   "temperature": 73366,
+   "bz": 2.34
+  },
+  {
+   "time": "2026-10-01T01:00:00Z",
+   "speed": 391.9,
+   "density": 6.19,
+   "temperature": 77960,
+   "bz": 3.49
+  },
+  {
+   "time": "2026-10-01T02:00:00Z",
+   "speed": 383.1,
+   "density": 5.31,
+   "temperature": 72065,
+   "bz": 2.02
+  },
+  {
+   "time": "2026-10-01T03:00:00Z",
+   "speed": 375.9,
+   "density": 4.59,
+   "temperature": 67293,
+   "bz": 0.82
+  },
+  {
+   "time": "2026-10-01T04:00:00Z",
+   "speed": 380.7,
+   "density": 5.07,
+   "temperature": 70499,
+   "bz": 1.62
+  },
+  {
+   "time": "2026-10-01T05:00:00Z",
+   "speed": 379.7,
+   "density": 4.97,
+   "temperature": 69810,
+   "bz": 1.45
+  },
+  {
+   "time": "2026-10-01T06:00:00Z",
+   "speed": 369.8,
+   "density": 3.98,
+   "temperature": 63210,
+   "bz": -0.2
+  },
+  {
+   "time": "2026-10-01T07:00:00Z",
+   "speed": 371.7,
+   "density": 4.17,
+   "temperature": 64462,
+   "bz": 0.12
+  },
+  {
+   "time": "2026-10-01T08:00:00Z",
+   "speed": 383.7,
+   "density": 5.37,
+   "temperature": 72473,
+   "bz": 2.12
+  },
+  {
+   "time": "2026-10-01T09:00:00Z",
+   "speed": 384.6,
+   "density": 5.46,
+   "temperature": 73096,
+   "bz": 2.27
+  },
+  {
+   "time": "2026-10-01T10:00:00Z",
+   "speed": 379.3,
+   "density": 4.93,
+   "temperature": 69556,
+   "bz": 1.39
+  },
+  {
+   "time": "2026-10-01T11:00:00Z",
+   "speed": 385.1,
+   "density": 5.51,
+   "temperature": 73392,
+   "bz": 2.35
+  },
+  {
+   "time": "2026-10-01T12:00:00Z",
+   "speed": 390.6,
+   "density": 6.06,
+   "temperature": 77043,
+   "bz": 3.26
+  },
+  {
+   "time": "2026-10-01T13:00:00Z",
+   "speed": 380.7,
+   "density": 5.07,
+   "temperature": 70496,
+   "bz": 1.62
+  },
+  {
+   "time": "2026-10-01T14:00:00Z",
+   "speed": 371.9,
+   "density": 4.19,
+   "temperature": 64573,
+   "bz": 0.14
+  },
+  {
+   "time": "2026-10-01T15:00:00Z",
+   "speed": 377.0,
+   "density": 4.7,
+   "temperature": 68017,
+   "bz": 1.0
+  },
+  {
+   "time": "2026-10-01T16:00:00Z",
+   "speed": 379.3,
+   "density": 4.93,
+   "temperature": 69531,
+   "bz": 1.38
+  },
+  {
+   "time": "2026-10-01T17:00:00Z",
+   "speed": 372.0,
+   "density": 4.2,
+   "temperature": 64636,
+   "bz": 0.16
+  },
+  {
+   "time": "2026-10-01T18:00:00Z",
+   "speed": 374.3,
+   "density": 4.43,
+   "temperature": 66189,
+   "bz": 0.55
+  },
+  {
+   "time": "2026-10-01T19:00:00Z",
+   "speed": 387.0,
+   "density": 5.7,
+   "temperature": 74664,
+   "bz": 2.67
+  },
+  {
+   "time": "2026-10-01T20:00:00Z",
+   "speed": 447.4,
+   "density": 31.04,
+   "temperature": 610412,
+   "bz": 2.71
+  },
+  {
+   "time": "2026-10-01T21:00:00Z",
+   "speed": 591.1,
+   "density": 26.38,
+   "temperature": 529209,
+   "bz": -0.23
+  },
+  {
+   "time": "2026-10-01T22:00:00Z",
+   "speed": 675.7,
+   "density": 23.54,
+   "temperature": 471241,
+   "bz": -1.27
+  },
+  {
+   "time": "2026-10-01T23:00:00Z",
+   "speed": 685.0,
+   "density": 21.46,
+   "temperature": 425168,
+   "bz": -2.44
+  },
+  {
+   "time": "2026-10-02T00:00:00Z",
+   "speed": 665.5,
+   "density": 18.05,
+   "temperature": 369468,
+   "bz": -6.99
+  },
+  {
+   "time": "2026-10-02T01:00:00Z",
+   "speed": 646.8,
+   "density": 15.04,
+   "temperature": 320747,
+   "bz": -11.47
+  },
+  {
+   "time": "2026-10-02T02:00:00Z",
+   "speed": 660.3,
+   "density": 14.24,
+   "temperature": 296902,
+   "bz": -13.21
+  },
+  {
+   "time": "2026-10-02T03:00:00Z",
+   "speed": 672.5,
+   "density": 13.62,
+   "temperature": 276949,
+   "bz": -14.9
+  },
+  {
+   "time": "2026-10-02T04:00:00Z",
+   "speed": 661.7,
+   "density": 11.83,
+   "temperature": 247190,
+   "bz": -17.37
+  },
+  {
+   "time": "2026-10-02T05:00:00Z",
+   "speed": 664.8,
+   "density": 11.04,
+   "temperature": 229163,
+   "bz": -17.83
+  },
+  {
+   "time": "2026-10-02T06:00:00Z",
+   "speed": 689.2,
+   "density": 11.69,
+   "temperature": 226747,
+   "bz": -15.76
+  },
+  {
+   "time": "2026-10-02T07:00:00Z",
+   "speed": 690.5,
+   "density": 11.07,
+   "temperature": 212915,
+   "bz": -13.88
+  },
+  {
+   "time": "2026-10-02T08:00:00Z",
+   "speed": 668.8,
+   "density": 9.17,
+   "temperature": 187286,
+   "bz": -12.86
+  },
+  {
+   "time": "2026-10-02T09:00:00Z",
+   "speed": 667.1,
+   "density": 8.57,
+   "temperature": 175468,
+   "bz": -10.15
+  },
+  {
+   "time": "2026-10-02T10:00:00Z",
+   "speed": 676.7,
+   "density": 8.73,
+   "temperature": 171912,
+   "bz": -6.44
+  },
+  {
+   "time": "2026-10-02T11:00:00Z",
+   "speed": 655.5,
+   "density": 7.46,
+   "temperature": 154747,
+   "bz": -5.43
+  },
+  {
+   "time": "2026-10-02T12:00:00Z",
+   "speed": 633.4,
+   "density": 6.17,
+   "temperature": 137971,
+   "bz": -5.28
+  },
+  {
+   "time": "2026-10-02T13:00:00Z",
+   "speed": 644.3,
+   "density": 6.91,
+   "temperature": 141878,
+   "bz": -2.09
+  },
+  {
+   "time": "2026-10-02T14:00:00Z",
+   "speed": 657.0,
+   "density": 7.79,
+   "temperature": 147527,
+   "bz": 0.93
+  },
+  {
+   "time": "2026-10-02T15:00:00Z",
+   "speed": 643.1,
+   "density": 7.09,
+   "temperature": 137795,
+   "bz": 0.52
+  },
+  {
+   "time": "2026-10-02T16:00:00Z",
+   "speed": 636.3,
+   "density": 6.84,
+   "temperature": 124821,
+   "bz": 0.65
+  },
+  {
+   "time": "2026-10-02T17:00:00Z",
+   "speed": 650.8,
+   "density": 7.88,
+   "temperature": 134278,
+   "bz": 3.14
+  },
+  {
+   "time": "2026-10-02T18:00:00Z",
+   "speed": 645.0,
+   "density": 7.73,
+   "temperature": 131760,
+   "bz": 3.11
+  },
+  {
+   "time": "2026-10-02T19:00:00Z",
+   "speed": 614.6,
+   "density": 6.1,
+   "temperature": 114553,
+   "bz": 0.06
+  },
+  {
+   "time": "2026-10-02T20:00:00Z",
+   "speed": 604.5,
+   "density": 5.69,
+   "temperature": 109638,
+   "bz": -0.6
+  },
+  {
+   "time": "2026-10-02T21:00:00Z",
+   "speed": 612.4,
+   "density": 6.38,
+   "temperature": 115652,
+   "bz": 0.88
+  },
+  {
+   "time": "2026-10-02T22:00:00Z",
+   "speed": 599.6,
+   "density": 5.82,
+   "temperature": 109228,
+   "bz": -0.15
+  },
+  {
+   "time": "2026-10-02T23:00:00Z",
+   "speed": 582.2,
+   "density": 4.99,
+   "temperature": 100130,
+   "bz": -1.74
+  },
+  {
+   "time": "2026-10-03T00:00:00Z",
+   "speed": 595.9,
+   "density": 6.03,
+   "temperature": 109770,
+   "bz": 0.4
+  },
+  {
+   "time": "2026-10-03T01:00:00Z",
+   "speed": 612.9,
+   "density": 7.27,
+   "temperature": 121381,
+   "bz": 2.92
+  },
+  {
+   "time": "2026-10-03T02:00:00Z",
+   "speed": 599.7,
+   "density": 6.69,
+   "temperature": 114896,
+   "bz": 1.8
+  },
+  {
+   "time": "2026-10-03T03:00:00Z",
+   "speed": 587.4,
+   "density": 6.16,
+   "temperature": 108918,
+   "bz": 0.77
+  },
+  {
+   "time": "2026-10-03T04:00:00Z",
+   "speed": 597.2,
+   "density": 6.97,
+   "temperature": 116299,
+   "bz": 2.39
+  },
+  {
+   "time": "2026-10-03T05:00:00Z",
+   "speed": 591.9,
+   "density": 6.86,
+   "temperature": 114534,
+   "bz": 2.18
+  },
+  {
+   "time": "2026-10-03T06:00:00Z",
+   "speed": 562.0,
+   "density": 5.27,
+   "temperature": 98036,
+   "bz": -0.98
+  },
+  {
+   "time": "2026-10-03T07:00:00Z",
+   "speed": 552.4,
+   "density": 4.89,
+   "temperature": 93696,
+   "bz": -1.73
+  },
+  {
+   "time": "2026-10-03T08:00:00Z",
+   "speed": 566.3,
+   "density": 5.93,
+   "temperature": 103470,
+   "bz": 0.34
+  },
+  {
+   "time": "2026-10-03T09:00:00Z",
+   "speed": 562.1,
+   "density": 5.87,
+   "temperature": 102333,
+   "bz": 0.22
+  },
+  {
+   "time": "2026-10-03T10:00:00Z",
+   "speed": 548.0,
+   "density": 5.22,
+   "temperature": 95315,
+   "bz": -1.08
+  },
+  {
+   "time": "2026-10-03T11:00:00Z",
+   "speed": 561.3,
+   "density": 6.2,
+   "temperature": 104632,
+   "bz": 0.88
+  }
+ ]
+}

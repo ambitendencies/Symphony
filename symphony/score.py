@@ -79,8 +79,9 @@ def solo(source: str, duration: float, sr: int = SAMPLE_RATE, **options) -> np.n
     return m.render(sr)
 
 
-def default_symphony(scale: float = 1.0) -> Symphony:
-    """The full 'Symphony of Space'. ``scale`` stretches every movement."""
+def default_symphony(scale: float = 1.0, solar_wind: dict | None = None) -> Symphony:
+    """The full 'Symphony of Space'. ``scale`` stretches every movement;
+    ``solar_wind`` holds options (e.g. live ``data``) for the solar wind track."""
     from .sources import REGISTRY
 
     def have(*names: str) -> bool:
@@ -95,7 +96,7 @@ def default_symphony(scale: float = 1.0) -> Symphony:
         ], reverb=0.25))
     if have("solar_wind", "plasma"):
         mv.append(Movement("II. Solar Wind & Plasma Storms", 40 * s, [
-            Track("solar_wind", gain=0.7),
+            Track("solar_wind", gain=0.7, options=dict(solar_wind or {})),
             Track("plasma", start=8 * s, gain=0.8),
         ], reverb=0.2))
     if have("pulsars"):
