@@ -48,9 +48,12 @@
 <div class="grain" aria-hidden="true"></div>
 
 <style>
+  /* Sized to the *large* viewport so it also fills the area behind iOS Safari's
+     toolbars, and fades to exactly --bg at every edge so nothing shows a seam. */
   .sky {
-    position: fixed; inset: 0; z-index: var(--z-sky); overflow: hidden;
-    background: radial-gradient(140% 100% at 70% 110%, var(--bg-2) 0%, var(--bg) 60%);
+    position: fixed; top: 0; left: 0; right: 0; height: 100lvh; min-height: 100%;
+    z-index: var(--z-sky); overflow: hidden;
+    background: radial-gradient(90% 60% at 65% 55%, var(--bg-2) 0%, var(--bg) 100%);
   }
   /* One off-centre wash of the station's hue, low and to the right, like light pollution on a horizon. */
   .glow {

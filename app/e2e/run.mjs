@@ -64,11 +64,15 @@ try {
       for (const r of results) {
         if (r.nonFinite) fail(`${r.station}/${r.mood}: ${r.nonFinite} non-finite samples`);
         if (r.peakDb > -0.99) fail(`${r.station}/${r.mood}: peak ${r.peakDb} dBFS above −1 dBFS ceiling`);
-        if (r.rmsDb < -40) fail(`${r.station}/${r.mood}: nearly silent (${r.rmsDb} dB)`);
+        if (r.mood !== 'solo' && r.rmsDb < -40) fail(`${r.station}/${r.mood}: nearly silent (${r.rmsDb} dB)`);
       }
-      const levels = results.map((r) => r.rmsDb).sort((a, b) => a - b);
+      // Loudness matching applies to stations; solo renders only need to be safe and audible.
+      const stations = results.filter((r) => r.mood !== 'solo');
+      for (const r of results.filter((x) => x.mood === 'solo'))
+        if (r.rmsDb < -48) fail(`${r.station}: voice is nearly silent (${r.rmsDb} dB)`);
+      const levels = stations.map((r) => r.rmsDb).sort((a, b) => a - b);
       const median = levels[Math.floor(levels.length / 2)];
-      for (const r of results)
+      for (const r of stations)
         if (Math.abs(r.rmsDb - median) > 3)
           fail(`${r.station}/${r.mood}: loudness ${r.rmsDb} dB is >3 dB from the median ${median} dB (tuning would jump)`);
     }

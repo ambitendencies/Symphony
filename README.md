@@ -11,8 +11,8 @@ npm run e2e            # headless Chromium: audio-safety renders of every statio
 npm run build          # static site in app/dist → Cloudflare Pages
 ```
 
-- **Voices:** Solar Wind (live-capable, sonification), Pulsar Clocks (sonification), Singing Stars (audification of asteroseismic mode frequencies), Black Hole Chirps (audification of a modelled GW waveform).
-- **Stations:** Solar Drift, Neutron Focus, Gravity Hymn, Full Cosmos (`app/src/lib/stations/`).
+- **Voices (11):** Solar Wind (live-capable), Pulsar Clocks, Singing Stars (audification of asteroseismic modes), Black Hole Chirps (audification of a modelled GW waveform), Solar Flares (GOES X-ray light curves), Planetary Radio (chorus, whistlers, Saturn kilometric radiation, Voyager's interstellar plasma tone), Resonant Worlds (TRAPPIST-1's orbital resonances as polyrhythm), Afterglow (Planck CMB acoustic peaks as a harmonic series), Collapsing Stars (supernova light curves), Fast Radio Bursts (dispersion sweeps as chimes), Atomic Echoes (gamma-ray line energies as bell overtones).
+- **Stations (7):** Solar Drift, Aurora, Neutron Focus, Planet Song, Gravity Hymn, First Light, Full Cosmos (`app/src/lib/stations/`).
 - **Data:** `pipeline/` regenerates the archival files in `app/public/data/` from ATNF, GWOSC and asteroseismology sources (weekly GitHub Action); `worker/` is a Cloudflare Worker that polls NOAA SWPC every 2 minutes. Set `VITE_LIVE_BASE` to the worker URL to enable live solar wind.
 - **Honest status:** the dev sandbox could not reach NOAA, GWOSC, MAST or ATNF, so the live path is tested only against fixtures, and the archival values were entered from published papers and still need to be checked by an online pipeline run. The solar-wind archive is a modelled storm, not a recorded one.
 

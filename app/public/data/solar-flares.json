@@ -1,0 +1,47 @@
+{
+ "version": 1,
+ "voice": "solar-flares",
+ "kind": "archive",
+ "updated": "2026-10-12T00:00:00Z",
+ "source": "NOAA SWPC event reports; light curves modelled from the published start, peak and end times and peak class",
+ "instrument": "GOES-16/18 XRS (1–8 Å)",
+ "flares": [
+  {
+   "name": "X9.0",
+   "date": "2024-10-03",
+   "start": "12:08",
+   "peak": "12:18",
+   "end": "12:27",
+   "peakFlux": 0.0009,
+   "region": "AR 13842"
+  },
+  {
+   "name": "X8.7",
+   "date": "2024-05-14",
+   "start": "16:46",
+   "peak": "16:51",
+   "end": "17:02",
+   "peakFlux": 0.00087,
+   "region": "AR 13664"
+  },
+  {
+   "name": "X2.8",
+   "date": "2023-12-14",
+   "start": "16:47",
+   "peak": "17:02",
+   "end": "17:12",
+   "peakFlux": 0.00028,
+   "region": "AR 13514"
+  },
+  {
+   "name": "M5.8",
+   "date": "2024-05-10",
+   "start": "06:27",
+   "peak": "06:54",
+   "end": "07:06",
+   "peakFlux": 5.8e-05,
+   "region": "AR 13664"
+  }
+ ],
+ "backgroundFlux": 1.5e-06
+}

@@ -33,6 +33,15 @@ async function main() {
       out.textContent = JSON.stringify(results, null, 1);
     }
   }
+  // Every voice alone, in every role it can play, so no role goes unheard by the gate.
+  for (const v of VOICES) {
+    for (const role of v.roles) {
+      const solo = { id: `solo-${v.id}-${role}`, name: v.name, tagline: '', mood: 'drift' as MoodId, hue: 0, lesson: '', movements: [{ bars: 64, voices: [{ voice: v.id, role }] }] };
+      const r = await renderStation(solo, VOICES, data, { seconds: Math.min(seconds, 40), sampleRate: 32000 });
+      results.push({ station: solo.id, mood: 'solo', peakDb: +r.peakDb.toFixed(2), rmsDb: +r.rmsDb.toFixed(2), nonFinite: r.nonFinite, captions: r.captions.length, ms: 0 });
+      out.textContent = JSON.stringify(results, null, 1);
+    }
+  }
   (window as unknown as { __results: unknown }).__results = results;
 }
 
