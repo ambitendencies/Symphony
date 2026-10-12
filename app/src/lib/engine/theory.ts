@@ -22,7 +22,7 @@ export const MOODS: Record<MoodId, Mood> = {
     bpm: 60,
     beatsPerBar: 4,
     brightness: 0.6,
-    maxVoices: 5,
+    maxVoices: 6,
     density: 0.6,
   },
   focus: {
@@ -37,7 +37,7 @@ export const MOODS: Record<MoodId, Mood> = {
     bpm: 66,
     beatsPerBar: 4,
     brightness: 0.75,
-    maxVoices: 5,
+    maxVoices: 6,
     density: 0.7,
   },
   sleep: {
@@ -52,7 +52,7 @@ export const MOODS: Record<MoodId, Mood> = {
     bpm: 50,
     beatsPerBar: 4,
     brightness: 0.35,
-    maxVoices: 4,
+    maxVoices: 5,
     density: 0.35,
   },
 };

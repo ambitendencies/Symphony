@@ -37,6 +37,9 @@ export const ROLE_MIX: Record<Role, { gain: number; send: number }> = {
   events: { gain: 0.85, send: 0.55 },
 };
 
+/** A movement with this many voices plays at the nominal role gains; more voices are trimmed. */
+export const TRIM_REFERENCE_VOICES = 3;
+
 /** Fade voices in/out over this many bars when the arrangement changes. */
 const ENTRY_BARS = 2;
 /** How far the other roles dip while an event voice speaks (call and response). */
@@ -208,6 +211,10 @@ export class StationPlayer {
     const capMood = { ...this.mood, maxVoices: Math.min(this.mood.maxVoices, this.voiceCap) };
     const slots = activeSlots(this.station, index, capMood, (id) => this.voices.has(id));
     const wanted = new Map<string, VoiceSlot>(slots.map((s) => [s.voice, s]));
+    // Level compensation: voices add as power, so a six-voice movement is trimmed ~3 dB against a
+    // three-voice one. This keeps every station, and every movement, at about the same loudness.
+    const trim = Math.min(1, Math.sqrt(TRIM_REFERENCE_VOICES / Math.max(1, slots.length)));
+    for (const [role, bus] of this.buses) bus.input.gain.setTargetAtTime(ROLE_MIX[role].gain * trim, at, 2);
     const fadeTime = ENTRY_BARS * this.clock.secondsPerBar;
 
     // Leaving voices fade over two bars.

@@ -120,3 +120,21 @@ describe('physics helpers', () => {
     expect(b[0]).toBe(1);
   });
 });
+
+describe('stations are rich ensembles', () => {
+  it.each(STATIONS.map((s) => [s.id, s] as const))('%s: every movement carries 4–6 voices, none cut by its mood budget', (_id, station) => {
+    const budget = { drift: 6, focus: 6, sleep: 5 }[station.mood];
+    for (const m of station.movements) {
+      expect(m.voices.length).toBeGreaterThanOrEqual(4);
+      expect(m.voices.length).toBeLessThanOrEqual(budget);
+    }
+  });
+
+  it('moods allow enough voices for the PRD budget (4–6)', async () => {
+    const { MOODS } = await import('../src/lib/engine/theory');
+    for (const m of Object.values(MOODS)) {
+      expect(m.maxVoices).toBeGreaterThanOrEqual(5);
+      expect(m.maxVoices).toBeLessThanOrEqual(6);
+    }
+  });
+});
